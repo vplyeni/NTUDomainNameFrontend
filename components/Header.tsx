@@ -3,7 +3,7 @@
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { memo, useCallback, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Wallet, LogOut, Loader2, Crown } from 'lucide-react'
+import { Wallet, LogOut, Loader2, Crown, Send } from 'lucide-react'
 import Link from 'next/link'
 import { useIsOwner } from '@/lib/useIsOwner'
 
@@ -76,6 +76,15 @@ export const Header = memo(function Header() {
                 className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50 transition-colors"
               >
                 Auctions
+              </motion.span>
+            </Link>
+            <Link href="/send-tokens">
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center gap-1.5 text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50 transition-colors"
+              >
+                <Send className="h-4 w-4" />
+                Send
               </motion.span>
             </Link>
             {isOwner && (
