@@ -98,14 +98,16 @@ export const Header = memo(function Header() {
                 Send
               </motion.span>
             </Link>
-            <Link href="/debug">
-              <motion.span
-                whileHover={{ scale: 1.05 }}
-                className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors"
-              >
-                Debug
-              </motion.span>
-            </Link>
+            {process.env.NEXT_PUBLIC_DEBUG_MODE === 'true' && (
+              <Link href="/debug">
+                <motion.span
+                  whileHover={{ scale: 1.05 }}
+                  className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors"
+                >
+                  Debug
+                </motion.span>
+              </Link>
+            )}
             {mounted && isOwner && (
               <Link href="/owner">
                 <motion.span
