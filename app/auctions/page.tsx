@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useReadContract } from 'wagmi'
 import { CONTRACT_ADDRESS, NNS_ABI } from '@/lib/contract'
@@ -107,6 +107,12 @@ export default function AuctionsPage() {
 
 // Component to display individual domain auction info - memoized for performance
 const DomainAuctionCard = memo(function DomainAuctionCard({ domain, index }: { domain: string; index: number }) {
+  const [mounted, setMounted] = useState(false)
+  
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+  
   const { data: domainMeta, isLoading } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: NNS_ABI,
@@ -134,7 +140,8 @@ const DomainAuctionCard = memo(function DomainAuctionCard({ domain, index }: { d
   if (!domainMeta) return null
 
   const [registrationDate, expiryDate, registrant, lastBidAmount] = domainMeta
-  const now = Math.floor(Date.now() / 1000)
+  // Only compute time-sensitive values after mounting to prevent hydration errors
+  const now = mounted ? Math.floor(Date.now() / 1000) : Number(expiryDate) + 1
   const isActive = Number(expiryDate) >= now
 
   return (

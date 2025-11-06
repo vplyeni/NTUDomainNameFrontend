@@ -628,25 +628,6 @@ export const NNS_ABI = [
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "searchTerm",
-        "type": "string"
-      }
-    ],
-    "name": "searchAuctionableDomains",
-    "outputs": [
-      {
-        "internalType": "string[]",
-        "name": "matches",
-        "type": "string[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "owner",
     "outputs": [

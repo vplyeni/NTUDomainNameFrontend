@@ -1,7 +1,7 @@
 'use client'
 
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Wallet, LogOut, Loader2, Crown, Send } from 'lucide-react'
 import Link from 'next/link'
@@ -13,6 +13,11 @@ export const Header = memo(function Header() {
   const { connectors, connect, isPending } = useConnect()
   const { disconnect } = useDisconnect()
   const { isOwner } = useIsOwner()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const formatAddress = useCallback((addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`
@@ -93,7 +98,15 @@ export const Header = memo(function Header() {
                 Send
               </motion.span>
             </Link>
-            {isOwner && (
+            <Link href="/debug">
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors"
+              >
+                Debug
+              </motion.span>
+            </Link>
+            {mounted && isOwner && (
               <Link href="/owner">
                 <motion.span
                   whileHover={{ scale: 1.05 }}
@@ -108,7 +121,7 @@ export const Header = memo(function Header() {
 
           {/* Wallet Connection */}
           <div className="flex items-center gap-4">
-            {isConnected ? (
+            {mounted && isConnected ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -130,7 +143,7 @@ export const Header = memo(function Header() {
                   <span className="hidden sm:inline">Disconnect</span>
                 </motion.button>
               </motion.div>
-            ) : (
+            ) : mounted ? (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -145,6 +158,8 @@ export const Header = memo(function Header() {
                 )}
                 <span>Connect Wallet</span>
               </motion.button>
+            ) : (
+              <div className="w-[140px] h-[40px]" />
             )}
           </div>
         </div>

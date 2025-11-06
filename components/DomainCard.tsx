@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useMemo, useCallback } from 'react'
+import { memo, useMemo, useCallback, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Clock, User, Calendar, CheckCircle, XCircle } from 'lucide-react'
 import { formatDistance } from 'date-fns'
@@ -26,20 +26,25 @@ export const DomainCard = memo(function DomainCard({
   actionLabel = 'Register',
   isActive = true
 }: DomainCardProps) {
+  const [mounted, setMounted] = useState(false)
+  
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   
   const formatAddress = useCallback((addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`
   }, [])
 
   const expiryStatus = useMemo(() => {
-    if (!expiryDate) return null
+    if (!expiryDate || !mounted) return null
     const now = Date.now() / 1000
     const timeLeft = expiryDate - now
     
     if (timeLeft < 0) return { label: 'Expired', color: 'text-red-500', bgColor: 'bg-red-50 dark:bg-red-950/20' }
     if (timeLeft < 30 * 24 * 60 * 60) return { label: 'Expiring Soon', color: 'text-orange-500', bgColor: 'bg-orange-50 dark:bg-orange-950/20' }
     return { label: 'Active', color: 'text-green-500', bgColor: 'bg-green-50 dark:bg-green-950/20' }
-  }, [expiryDate])
+  }, [expiryDate, mounted])
 
   return (
     <motion.div
@@ -91,7 +96,7 @@ export const DomainCard = memo(function DomainCard({
             </div>
           )}
           
-          {registrationDate && (
+          {registrationDate && mounted && (
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-zinc-400" />
               <span className="text-zinc-600 dark:text-zinc-400">Registered:</span>
@@ -101,7 +106,7 @@ export const DomainCard = memo(function DomainCard({
             </div>
           )}
           
-          {expiryDate && (
+          {expiryDate && mounted && (
             <div className="flex items-center gap-2 text-sm">
               <Clock className="h-4 w-4 text-zinc-400" />
               <span className="text-zinc-600 dark:text-zinc-400">Expires:</span>

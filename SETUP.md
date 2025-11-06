@@ -11,14 +11,22 @@ npm install
 Create a `.env.local` file in the `frontend` directory:
 
 ```env
-NEXT_PUBLIC_CONTRACT_ADDRESS=0xYourDeployedContractAddress
+# Contract Addresses (Sepolia Network)
+NEXT_PUBLIC_CONTRACT_ADDRESS=0xe3290dFdf6bD99D46925cE3c6B06c21fdba8De6a
+NEXT_PUBLIC_ALP_CONTRACT_ADDRESS=0xc8c41a371Ce33e7A9ec87D5Fcd4372dee0dd1058
+
+# Optional: WalletConnect Project ID
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
+
+# Optional: Custom Sepolia RPC URL
+NEXT_PUBLIC_SEPOLIA_RPC_URL=https://rpc.sepolia.org
 ```
 
-### Getting Your Contract Address
-1. Deploy the `NTUDomainName.sol` contract to your preferred network
-2. Copy the deployed contract address
-3. Paste it in `.env.local`
+### Getting Your Contract Addresses
+1. Deploy the `NTUDomainName.sol` (NNS) contract to Sepolia
+2. Deploy the `ALP.sol` (ALP Token) contract to Sepolia
+3. Copy both deployed contract addresses
+4. Update them in `.env.local`
 
 ### Getting WalletConnect Project ID (Optional)
 1. Go to https://cloud.walletconnect.com
@@ -40,7 +48,8 @@ Open http://localhost:3000 in your browser.
 1. Click "Connect Wallet" in the top-right
 2. Select MetaMask or WalletConnect
 3. Approve the connection
-4. Make sure you're on the correct network (where your contract is deployed)
+4. Make sure you're on **Sepolia Testnet** in your wallet
+5. Get test ETH from a Sepolia faucet if needed (https://sepoliafaucet.com)
 
 ## Step 5: Test the Application
 

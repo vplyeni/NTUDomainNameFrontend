@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, memo } from 'react'
+import { useState, useCallback, memo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { CONTRACT_ADDRESS, NNS_ABI } from '@/lib/contract'
@@ -346,6 +346,12 @@ const DomainMetaCard = memo(function DomainMetaCard({
   onTransfer: (domain: string) => void
   onRenew: (domain: string, lastBidAmount: bigint) => void
 }) {
+  const [mounted, setMounted] = useState(false)
+  
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+  
   const { data: domainMeta, isLoading } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: NNS_ABI,
@@ -364,7 +370,8 @@ const DomainMetaCard = memo(function DomainMetaCard({
   if (!domainMeta) return null
 
   const [registrationDate, expiryDate, registrant, lastBidAmount] = domainMeta
-  const now = Math.floor(Date.now() / 1000)
+  // Only compute time-sensitive values after mounting to prevent hydration errors
+  const now = mounted ? Math.floor(Date.now() / 1000) : Number(expiryDate)
   const isExpired = Number(expiryDate) < now
   const canRenew = isExpired && (now <= Number(expiryDate) + 90 * 24 * 60 * 60) // within 90 day grace period
 

@@ -24,13 +24,12 @@ export default function OwnerPage() {
     functionName: 'getAllAuctionableDomains',
   })
 
-  // Search functionality
-  const { data: searchResults, refetch: refetchSearch } = useReadContract({
-    address: CONTRACT_ADDRESS,
-    abi: NNS_ABI,
-    functionName: 'searchAuctionableDomains',
-    args: [searchQuery],
-  })
+  // Client-side search functionality
+  const searchResults = auctionableDomains && searchQuery 
+    ? (auctionableDomains as readonly string[]).filter(domain =>
+        domain.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : auctionableDomains
 
   // Write contracts
   const { writeContract: addDomain, data: addHash } = useWriteContract()
@@ -62,13 +61,6 @@ export default function OwnerPage() {
       setBatchInput('')
     }
   }, [isAddSuccess, isBatchSuccess, isRemoveSuccess, refetchDomains])
-
-  // Search effect
-  useEffect(() => {
-    if (searchQuery) {
-      refetchSearch()
-    }
-  }, [searchQuery, refetchSearch])
 
   const handleAddDomain = useCallback(() => {
     setError('')
@@ -184,7 +176,7 @@ export default function OwnerPage() {
     )
   }
 
-  const displayDomains = searchQuery && searchResults ? searchResults : auctionableDomains
+  const displayDomains = searchQuery ? searchResults : auctionableDomains
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-amber-50/30 to-orange-50/30">
@@ -343,7 +335,7 @@ export default function OwnerPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search domains (fuzzy search)..."
+              placeholder="Search domains..."
               className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-zinc-900 placeholder-zinc-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
             />
             {searchQuery && (
@@ -414,7 +406,7 @@ export default function OwnerPage() {
           <p className="text-sm text-blue-800">
             <strong>Note:</strong> Only domains in the auctionable list can be started for auction. 
             Users will need to search for these domains and initiate auctions through the search page.
-            The fuzzy search feature allows partial matches (e.g., searching "tech" will find "biotech.ntu").
+            The search feature allows partial matches (e.g., searching "tech" will find "biotech.ntu") and is performed client-side for better performance.
           </p>
         </motion.div>
       </div>
