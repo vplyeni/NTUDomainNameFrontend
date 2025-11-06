@@ -6,17 +6,26 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { SearchBar } from '@/components/SearchBar'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { CONTRACT_ADDRESS, NNS_ABI } from '@/lib/contract'
-import { CheckCircle, XCircle, Loader2, AlertCircle, Clock, Gavel } from 'lucide-react'
-import { parseEther, keccak256, toBytes } from 'viem'
+import { CheckCircle, XCircle, Loader2, AlertCircle, Clock, Gavel, Info } from 'lucide-react'
+import { parseEther } from 'viem'
+import { 
+  generateSecret, 
+  makeCommitment, 
+  storeBid, 
+  getHighestBid, 
+  getBidsForDomain,
+  type BidData 
+} from '@/lib/commitmentUtils'
 
 function SearchContent() {
   const searchParams = useSearchParams()
   const { address, isConnected } = useAccount()
   const [searchDomain, setSearchDomain] = useState('')
   const [bidAmount, setBidAmount] = useState('')
-  const [secret, setSecret] = useState('')
   const [step, setStep] = useState<'search' | 'commit' | 'reveal' | 'finalize'>('search')
-  const [savedBidData, setSavedBidData] = useState<{ domain: string; bidAmount: string; secret: string } | null>(null)
+  const [currentBids, setCurrentBids] = useState<BidData[]>([])
+  const [revealBidAmount, setRevealBidAmount] = useState('')
+  const [revealSecret, setRevealSecret] = useState('')
 
   const { writeContract, data: hash, isPending, isError, error } = useWriteContract()
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash })
@@ -47,21 +56,28 @@ function SearchContent() {
     const domain = searchParams.get('domain')
     if (domain) {
       setSearchDomain(domain)
+      // Load existing bids for this domain
+      const bids = getBidsForDomain(domain)
+      setCurrentBids(bids)
     }
   }, [searchParams])
-
-  // Generate random secret
-  const generateSecret = () => {
-    const randomBytes = new Uint8Array(32)
-    crypto.getRandomValues(randomBytes)
-    return '0x' + Array.from(randomBytes).map(b => b.toString(16).padStart(2, '0')).join('')
-  }
 
   const handleSearch = useCallback((domain: string) => {
     setSearchDomain(domain)
     setStep('search')
     refetchAvailability()
     refetchMeta()
+    
+    // Load existing bids for this domain
+    const bids = getBidsForDomain(domain)
+    setCurrentBids(bids)
+    
+    // Auto-fill reveal form with highest bid if available
+    const highestBid = getHighestBid(domain)
+    if (highestBid) {
+      setRevealBidAmount(highestBid.bidAmount)
+      setRevealSecret(highestBid.secret)
+    }
   }, [refetchAvailability, refetchMeta])
 
   const startAuction = useCallback(async () => {
@@ -78,53 +94,55 @@ function SearchContent() {
   const commitBid = useCallback(async () => {
     if (!searchDomain || !bidAmount || !address) return
     
-    const generatedSecret = generateSecret()
-    setSecret(generatedSecret)
+    // Generate random secret
+    const secret = generateSecret()
     
-    // Calculate commitment hash
-    const commitment = keccak256(
-      toBytes(searchDomain + bidAmount + generatedSecret + address)
+    // Calculate commitment hash using proper abi.encode matching
+    const commitment = makeCommitment(
+      searchDomain,
+      bidAmount,
+      secret,
+      address
     )
     
-    // Save bid data for reveal phase
-    const bidData = { domain: searchDomain, bidAmount, secret: generatedSecret }
-    setSavedBidData(bidData)
-    localStorage.setItem('nns_bid_data', JSON.stringify(bidData))
+    // Save bid data to localStorage
+    const bidData: BidData = {
+      domain: searchDomain,
+      bidAmount,
+      secret,
+      commitment,
+      timestamp: Date.now()
+    }
+    storeBid(bidData)
     
+    // Update current bids display
+    const updatedBids = getBidsForDomain(searchDomain)
+    setCurrentBids(updatedBids)
+    
+    // Call contract with just the commitment hash (no domain name!)
     writeContract({
       address: CONTRACT_ADDRESS,
       abi: NNS_ABI,
       functionName: 'commitBid',
-      args: [searchDomain, commitment],
+      args: [commitment],
       value: parseEther(bidAmount)
     })
   }, [searchDomain, bidAmount, address, writeContract])
 
   const revealBid = useCallback(async () => {
-    if (!savedBidData) {
-      // Try to load from localStorage
-      const stored = localStorage.getItem('nns_bid_data')
-      if (stored) {
-        const data = JSON.parse(stored)
-        setSavedBidData(data)
-        
-        writeContract({
-          address: CONTRACT_ADDRESS,
-          abi: NNS_ABI,
-          functionName: 'revealBid',
-          args: [data.domain, parseEther(data.bidAmount), data.secret as `0x${string}`]
-        })
-      }
+    if (!searchDomain || !revealBidAmount || !revealSecret) {
+      alert('Please enter bid amount and secret')
       return
     }
     
+    // Reveal the bid with the selected amount and secret
     writeContract({
       address: CONTRACT_ADDRESS,
       abi: NNS_ABI,
       functionName: 'revealBid',
-      args: [savedBidData.domain, parseEther(savedBidData.bidAmount), savedBidData.secret as `0x${string}`]
+      args: [searchDomain, parseEther(revealBidAmount), revealSecret as `0x${string}`]
     })
-  }, [savedBidData, writeContract])
+  }, [searchDomain, revealBidAmount, revealSecret, writeContract])
 
   const finalizeAuction = useCallback(async () => {
     if (!searchDomain) return
@@ -300,6 +318,39 @@ function SearchContent() {
                               </div>
                             </div>
                           </div>
+
+                          {/* Important Notice about Multiple Bids */}
+                          <div className="rounded-xl bg-blue-50 p-4 border-l-4 border-blue-500 dark:bg-blue-950/20 dark:border-blue-400">
+                            <div className="flex items-start gap-3">
+                              <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                              <div className="text-sm text-blue-900 dark:text-blue-300">
+                                <p className="font-semibold mb-1">⚠️ Multiple Bids & Refunds</p>
+                                <ul className="list-disc list-inside space-y-1 text-blue-800 dark:text-blue-400">
+                                  <li>You can commit <strong>multiple bids</strong> on the same domain</li>
+                                  <li>Only your <strong>HIGHEST bid</strong> will be used during reveal</li>
+                                  <li>All funds from non-winning bids are <strong>fully refundable</strong> after auction</li>
+                                  <li>Your secret is auto-generated and stored locally</li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Show existing bids */}
+                          {currentBids.length > 0 && (
+                            <div className="rounded-xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
+                              <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
+                                Your Committed Bids ({currentBids.length})
+                              </h4>
+                              <div className="space-y-2">
+                                {currentBids.map((bid, idx) => (
+                                  <div key={bid.commitment} className="flex items-center justify-between text-xs bg-white dark:bg-zinc-900 rounded-lg p-2">
+                                    <span className="text-zinc-600 dark:text-zinc-400">Bid #{idx + 1}</span>
+                                    <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100">{bid.bidAmount} ETH</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                           
                           <div>
                             <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -372,11 +423,79 @@ function SearchContent() {
                             </div>
                           </div>
 
+                          {/* Auto-fill notice */}
+                          {currentBids.length > 0 && (
+                            <div className="rounded-xl bg-green-50 p-4 border-l-4 border-green-500 dark:bg-green-950/20 dark:border-green-400">
+                              <div className="flex items-start gap-3">
+                                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                                <div className="text-sm text-green-900 dark:text-green-300">
+                                  <p className="font-semibold mb-1">✅ Auto-filled with Highest Bid</p>
+                                  <p className="text-green-800 dark:text-green-400">
+                                    We've automatically filled in your <strong>highest bid</strong> ({getHighestBid(searchDomain)?.bidAmount} ETH) and its secret. You can reveal it now or manually edit if needed.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Bid Amount Input */}
+                          <div>
+                            <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                              Bid Amount to Reveal (ETH)
+                            </label>
+                            <input
+                              type="number"
+                              step="0.001"
+                              value={revealBidAmount}
+                              onChange={(e) => setRevealBidAmount(e.target.value)}
+                              placeholder="0.1"
+                              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 focus:border-orange-500 focus:outline-none focus:ring-4 focus:ring-orange-500/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+                            />
+                          </div>
+
+                          {/* Secret Input */}
+                          <div>
+                            <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                              Secret (from commit phase)
+                            </label>
+                            <input
+                              type="text"
+                              value={revealSecret}
+                              onChange={(e) => setRevealSecret(e.target.value)}
+                              placeholder="0x..."
+                              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 font-mono text-sm text-zinc-900 focus:border-orange-500 focus:outline-none focus:ring-4 focus:ring-orange-500/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+                            />
+                          </div>
+
+                          {/* Bid selector if multiple bids */}
+                          {currentBids.length > 1 && (
+                            <div className="rounded-xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
+                              <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
+                                Or Select a Different Bid:
+                              </h4>
+                              <div className="space-y-2">
+                                {currentBids.map((bid, idx) => (
+                                  <button
+                                    key={bid.commitment}
+                                    onClick={() => {
+                                      setRevealBidAmount(bid.bidAmount)
+                                      setRevealSecret(bid.secret)
+                                    }}
+                                    className="w-full flex items-center justify-between text-sm bg-white dark:bg-zinc-900 rounded-lg p-3 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-colors"
+                                  >
+                                    <span className="text-zinc-600 dark:text-zinc-400">Bid #{idx + 1}</span>
+                                    <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100">{bid.bidAmount} ETH</span>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
                           <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={revealBid}
-                            disabled={isPending || isConfirming}
+                            disabled={!revealBidAmount || !revealSecret || isPending || isConfirming}
                             className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-red-600 px-6 py-4 text-lg font-semibold text-white hover:from-orange-600 hover:to-red-700 disabled:opacity-50 transition-all"
                           >
                             {isPending || isConfirming ? (

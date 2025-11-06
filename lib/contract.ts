@@ -73,12 +73,6 @@ export const NNS_ABI = [
     "inputs": [
       {
         "indexed": true,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "indexed": true,
         "internalType": "address",
         "name": "bidder",
         "type": "address"
@@ -225,11 +219,6 @@ export const NNS_ABI = [
   },
   {
     "inputs": [
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
       {
         "internalType": "bytes32",
         "name": "commitment",
