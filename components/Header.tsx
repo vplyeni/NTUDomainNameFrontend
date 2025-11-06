@@ -5,6 +5,7 @@ import { memo, useCallback, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Wallet, LogOut, Loader2, Crown, Send } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useIsOwner } from '@/lib/useIsOwner'
 
 export const Header = memo(function Header() {
@@ -41,11 +42,16 @@ export const Header = memo(function Header() {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2"
+              className="flex items-center gap-3"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600">
-                <span className="text-xl font-bold text-white">N</span>
-              </div>
+              <Image 
+                src="/logo.svg" 
+                alt="NNS Logo" 
+                width={40} 
+                height={40}
+                className="drop-shadow-md"
+                priority
+              />
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 NNS
               </span>

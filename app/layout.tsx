@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "NNS - NTU Name Service",
   description: "Decentralized domain name service for .ntu domains with blind auction registration",
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
