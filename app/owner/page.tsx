@@ -31,15 +31,46 @@ export default function OwnerPage() {
       )
     : auctionableDomains
 
-  // Write contracts
-  const { writeContract: addDomain, data: addHash } = useWriteContract()
-  const { writeContract: addBatch, data: batchHash } = useWriteContract()
-  const { writeContract: removeDomain, data: removeHash } = useWriteContract()
+  // Write contracts - separate hooks for each action
+  const { 
+    writeContract: addDomain, 
+    data: addHash,
+    isPending: isAddPending 
+  } = useWriteContract()
+  
+  const { 
+    writeContract: addBatch, 
+    data: batchHash,
+    isPending: isBatchPending 
+  } = useWriteContract()
+  
+  const { 
+    writeContract: removeDomain, 
+    data: removeHash,
+    isPending: isRemovePending 
+  } = useWriteContract()
 
   // Wait for transactions
-  const { isLoading: isAddingDomain, isSuccess: isAddSuccess } = useWaitForTransactionReceipt({ hash: addHash })
-  const { isLoading: isAddingBatch, isSuccess: isBatchSuccess } = useWaitForTransactionReceipt({ hash: batchHash })
-  const { isLoading: isRemoving, isSuccess: isRemoveSuccess } = useWaitForTransactionReceipt({ hash: removeHash })
+  const { 
+    isLoading: isAddingDomain, 
+    isSuccess: isAddSuccess 
+  } = useWaitForTransactionReceipt({ 
+    hash: addHash 
+  })
+  
+  const { 
+    isLoading: isAddingBatch, 
+    isSuccess: isBatchSuccess 
+  } = useWaitForTransactionReceipt({ 
+    hash: batchHash 
+  })
+  
+  const { 
+    isLoading: isRemoving, 
+    isSuccess: isRemoveSuccess 
+  } = useWaitForTransactionReceipt({ 
+    hash: removeHash 
+  })
 
   // Auto-clear messages
   useEffect(() => {
@@ -251,13 +282,13 @@ export default function OwnerPage() {
               
               <button
                 onClick={handleAddDomain}
-                disabled={isAddingDomain || !domainInput}
+                disabled={isAddPending || isAddingDomain || !domainInput}
                 className="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-3 text-sm font-semibold text-white hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isAddingDomain ? (
+                {isAddPending || isAddingDomain ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Adding...
+                    {isAddPending ? 'Confirming...' : 'Adding...'}
                   </>
                 ) : (
                   <>
@@ -298,13 +329,13 @@ export default function OwnerPage() {
               
               <button
                 onClick={handleAddBatch}
-                disabled={isAddingBatch || !batchInput}
+                disabled={isBatchPending || isAddingBatch || !batchInput}
                 className="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:from-green-600 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isAddingBatch ? (
+                {isBatchPending || isAddingBatch ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Adding Batch...
+                    {isBatchPending ? 'Confirming...' : 'Adding Batch...'}
                   </>
                 ) : (
                   <>
@@ -363,10 +394,10 @@ export default function OwnerPage() {
                     <span className="font-medium text-zinc-900">{domain}</span>
                     <button
                       onClick={() => handleRemoveDomain(domain)}
-                      disabled={isRemoving}
+                      disabled={isRemovePending || isRemoving}
                       className="flex items-center gap-2 rounded-lg bg-red-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isRemoving ? (
+                      {isRemovePending || isRemoving ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         <>

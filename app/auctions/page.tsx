@@ -326,7 +326,7 @@ const AuctionCard = memo(function AuctionCard({
         </div>
 
         {/* Action Button */}
-        <Link href={`/search?domain=${encodeURIComponent(domain)}`}>
+        <Link href={`/search?domain=${encodeURIComponent(domain)}&phase=${phase}`}>
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}

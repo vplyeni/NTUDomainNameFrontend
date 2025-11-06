@@ -10,6 +10,8 @@ import { CheckCircle, XCircle, Loader2, AlertCircle, Clock, Gavel, Info } from '
 import { parseEther } from 'viem'
 import { 
   generateSecret, 
+  generateSecretText,
+  hashSecretText,
   makeCommitment, 
   storeBid, 
   getHighestBid, 
@@ -24,7 +26,10 @@ function SearchContent() {
   const [bidAmount, setBidAmount] = useState('')
   const [step, setStep] = useState<'search' | 'commit' | 'reveal' | 'finalize'>('search')
   const [currentBids, setCurrentBids] = useState<BidData[]>([])
+  const [secretText, setSecretText] = useState('')
+  const [secretHash, setSecretHash] = useState<`0x${string}`>('0x0000000000000000000000000000000000000000000000000000000000000000')
   const [revealBidAmount, setRevealBidAmount] = useState('')
+  const [revealSecretText, setRevealSecretText] = useState('')
   const [revealSecret, setRevealSecret] = useState('')
   const [withdrawDomain, setWithdrawDomain] = useState('')
 
@@ -99,11 +104,38 @@ function SearchContent() {
 
   useEffect(() => {
     const domain = searchParams.get('domain')
+    const phase = searchParams.get('phase')
+    
     if (domain) {
       setSearchDomain(domain)
       // Load existing bids for this domain
       const bids = getBidsForDomain(domain)
       setCurrentBids(bids)
+      
+      // Auto-fill reveal form with highest bid if available
+      const highestBid = getHighestBid(domain)
+      if (highestBid) {
+        setRevealBidAmount(highestBid.bidAmount)
+        setRevealSecretText(highestBid.secretText || '')
+        setRevealSecret(highestBid.secret)
+      }
+      
+      // Auto-generate secret text for new commits
+      const randomText = generateSecretText()
+      setSecretText(randomText)
+      setSecretHash(hashSecretText(randomText))
+      
+      // Set step based on phase parameter
+      if (phase === 'commit') {
+        setStep('commit')
+      } else if (phase === 'reveal') {
+        setStep('reveal')
+      } else if (phase === 'pending_finalization' || phase === 'finalize') {
+        setStep('finalize')
+      } else {
+        // Default to search step
+        setStep('search')
+      }
     }
   }, [searchParams])
 
@@ -121,8 +153,14 @@ function SearchContent() {
     const highestBid = getHighestBid(domain)
     if (highestBid) {
       setRevealBidAmount(highestBid.bidAmount)
+      setRevealSecretText(highestBid.secretText || '')
       setRevealSecret(highestBid.secret)
     }
+    
+    // Auto-generate secret text for new commits
+    const randomText = generateSecretText()
+    setSecretText(randomText)
+    setSecretHash(hashSecretText(randomText))
   }, [refetchAvailability, refetchMeta])
 
   const startAuction = useCallback(async () => {
@@ -137,10 +175,10 @@ function SearchContent() {
   }, [searchDomain, writeContract])
 
   const commitBid = useCallback(async () => {
-    if (!searchDomain || !bidAmount || !address) return
+    if (!searchDomain || !bidAmount || !address || !secretHash) return
     
-    // Generate random secret
-    const secret = generateSecret()
+    // Use the secretHash (bytes32) for the commitment
+    const secret = secretHash
     
     // Calculate commitment hash using proper abi.encode matching
     const commitment = makeCommitment(
@@ -150,11 +188,12 @@ function SearchContent() {
       address
     )
     
-    // Save bid data to localStorage
+    // Save bid data to localStorage (including original text)
     const bidData: BidData = {
       domain: searchDomain,
       bidAmount,
-      secret,
+      secretText: secretText, // Store the original text
+      secret: secretHash, // Store the bytes32 hash
       commitment,
       timestamp: Date.now()
     }
@@ -164,6 +203,11 @@ function SearchContent() {
     const updatedBids = getBidsForDomain(searchDomain)
     setCurrentBids(updatedBids)
     
+    // Generate new secret for next bid
+    const newText = generateSecretText()
+    setSecretText(newText)
+    setSecretHash(hashSecretText(newText))
+    
     // Call contract with just the commitment hash (no domain name!)
     writeContract({
       address: CONTRACT_ADDRESS,
@@ -172,7 +216,7 @@ function SearchContent() {
       args: [commitment],
       value: parseEther(bidAmount)
     })
-  }, [searchDomain, bidAmount, address, writeContract])
+  }, [searchDomain, bidAmount, address, secretText, secretHash, writeContract])
 
   const revealBid = useCallback(async () => {
     if (!searchDomain || !revealBidAmount || !revealSecret) {
@@ -180,7 +224,7 @@ function SearchContent() {
       return
     }
     
-    // Reveal the bid with the selected amount and secret
+    // Reveal the bid with the selected amount and secret (use the hash, not the text)
     writeContract({
       address: CONTRACT_ADDRESS,
       abi: NNS_ABI,
@@ -188,6 +232,22 @@ function SearchContent() {
       args: [searchDomain, parseEther(revealBidAmount), revealSecret as `0x${string}`]
     })
   }, [searchDomain, revealBidAmount, revealSecret, writeContract])
+  
+  // Handle secret text changes
+  const handleSecretTextChange = useCallback((text: string) => {
+    setSecretText(text)
+    if (text) {
+      setSecretHash(hashSecretText(text))
+    }
+  }, [])
+  
+  // Handle reveal secret text changes
+  const handleRevealSecretTextChange = useCallback((text: string) => {
+    setRevealSecretText(text)
+    if (text) {
+      setRevealSecret(hashSecretText(text))
+    }
+  }, [])
 
   const finalizeAuction = useCallback(async () => {
     if (!searchDomain) return
@@ -302,34 +362,55 @@ function SearchContent() {
 
                   {/* Refund/Withdrawal Section */}
                   {address && refundableAmount && Number(refundableAmount) > 0 && (
-                    <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/20">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="mb-1 text-sm font-semibold text-amber-900 dark:text-amber-400">
-                            Refund Available
-                          </h3>
-                          <p className="text-xl font-bold text-amber-900 dark:text-amber-300">
-                            {(Number(refundableAmount) / 1e18).toFixed(4)} ETH
-                          </p>
+                    <>
+                      {auctionInfo && auctionInfo[1] ? (
+                        // Auction is finalized - show withdraw button
+                        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/20">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h3 className="mb-1 text-sm font-semibold text-amber-900 dark:text-amber-400">
+                                Refund Available
+                              </h3>
+                              <p className="text-xl font-bold text-amber-900 dark:text-amber-300">
+                                {(Number(refundableAmount) / 1e18).toFixed(4)} ETH
+                              </p>
+                            </div>
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={withdrawFunds}
+                              disabled={isPending || isConfirming}
+                              className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-2 text-sm font-semibold text-white hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 transition-all"
+                            >
+                              {isPending || isConfirming ? (
+                                <span className="flex items-center gap-2">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  Withdrawing...
+                                </span>
+                              ) : (
+                                'Withdraw'
+                              )}
+                            </motion.button>
+                          </div>
                         </div>
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={withdrawFunds}
-                          disabled={isPending || isConfirming}
-                          className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-2 text-sm font-semibold text-white hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 transition-all"
-                        >
-                          {isPending || isConfirming ? (
-                            <span className="flex items-center gap-2">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              Withdrawing...
-                            </span>
-                          ) : (
-                            'Withdraw'
-                          )}
-                        </motion.button>
-                      </div>
-                    </div>
+                      ) : (
+                        // Auction not finalized yet - show notice
+                        <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/20">
+                          <div className="flex items-start gap-3">
+                            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <h3 className="mb-1 text-sm font-semibold text-blue-900 dark:text-blue-400">
+                                Refund Pending
+                              </h3>
+                              <p className="text-sm text-blue-800 dark:text-blue-500">
+                                You have <strong>{(Number(refundableAmount) / 1e18).toFixed(4)} ETH</strong> available for refund. 
+                                The auction must be finalized before you can withdraw.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
 
                   {/* Auctionable Status Warning */}
@@ -506,6 +587,40 @@ function SearchContent() {
                             />
                           </div>
 
+                          {/* Secret Text Input */}
+                          <div>
+                            <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                              Secret Text (human-readable)
+                            </label>
+                            <input
+                              type="text"
+                              value={secretText}
+                              onChange={(e) => handleSecretTextChange(e.target.value)}
+                              placeholder="Enter your secret phrase..."
+                              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-500/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+                            />
+                            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                              Enter a memorable secret phrase. This will be hashed automatically.
+                            </p>
+                          </div>
+
+                          {/* Secret Hash Input (auto-filled but editable) */}
+                          <div>
+                            <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                              Secret Hash (bytes32)
+                            </label>
+                            <input
+                              type="text"
+                              value={secretHash}
+                              onChange={(e) => setSecretHash(e.target.value as `0x${string}`)}
+                              placeholder="0x..."
+                              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 font-mono text-sm text-zinc-900 focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-500/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+                            />
+                            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                              Auto-generated from text above. Can be manually edited if needed.
+                            </p>
+                          </div>
+
                           <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
@@ -593,10 +708,27 @@ function SearchContent() {
                             />
                           </div>
 
-                          {/* Secret Input */}
+                          {/* Secret Text Input */}
                           <div>
                             <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                              Secret (from commit phase)
+                              Secret Text (from commit phase)
+                            </label>
+                            <input
+                              type="text"
+                              value={revealSecretText}
+                              onChange={(e) => handleRevealSecretTextChange(e.target.value)}
+                              placeholder="Enter your secret phrase..."
+                              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 focus:border-orange-500 focus:outline-none focus:ring-4 focus:ring-orange-500/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+                            />
+                            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                              Enter the same secret text you used during commit.
+                            </p>
+                          </div>
+
+                          {/* Secret Hash Input */}
+                          <div>
+                            <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                              Secret Hash (bytes32)
                             </label>
                             <input
                               type="text"
@@ -605,6 +737,9 @@ function SearchContent() {
                               placeholder="0x..."
                               className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 font-mono text-sm text-zinc-900 focus:border-orange-500 focus:outline-none focus:ring-4 focus:ring-orange-500/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
                             />
+                            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                              Auto-generated from text above. Can be manually edited if needed.
+                            </p>
                           </div>
 
                           {/* Bid selector if multiple bids */}
@@ -619,6 +754,7 @@ function SearchContent() {
                                     key={bid.commitment}
                                     onClick={() => {
                                       setRevealBidAmount(bid.bidAmount)
+                                      setRevealSecretText(bid.secretText || '')
                                       setRevealSecret(bid.secret)
                                     }}
                                     className="w-full flex items-center justify-between text-sm bg-white dark:bg-zinc-900 rounded-lg p-3 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-colors"

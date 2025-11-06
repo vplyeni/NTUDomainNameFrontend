@@ -6,7 +6,8 @@ import { encodeAbiParameters, parseAbiParameters, keccak256, parseEther } from '
 export interface BidData {
   domain: string
   bidAmount: string // In ETH
-  secret: string // 0x-prefixed hex string
+  secretText: string // Original human-readable secret text
+  secret: string // bytes32 hash of the secret text (0x-prefixed hex string)
   commitment: string // The calculated commitment hash
   timestamp: number
 }
@@ -18,6 +19,29 @@ export function generateSecret(): `0x${string}` {
   const randomBytes = new Uint8Array(32)
   crypto.getRandomValues(randomBytes)
   return ('0x' + Array.from(randomBytes).map(b => b.toString(16).padStart(2, '0')).join('')) as `0x${string}`
+}
+
+/**
+ * Generate a random human-readable secret text
+ */
+export function generateSecretText(): string {
+  const words = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'theta', 'lambda']
+  const randomWord1 = words[Math.floor(Math.random() * words.length)]
+  const randomWord2 = words[Math.floor(Math.random() * words.length)]
+  const randomNum = Math.floor(Math.random() * 10000)
+  return `${randomWord1}-${randomWord2}-${randomNum}`
+}
+
+/**
+ * Hash text to bytes32 (for use as secret)
+ * This converts any text string to a proper bytes32 hash
+ */
+export function hashSecretText(text: string): `0x${string}` {
+  // Convert text to bytes and hash it
+  const encoder = new TextEncoder()
+  const data = encoder.encode(text)
+  const hexString = '0x' + Array.from(data).map(b => b.toString(16).padStart(2, '0')).join('')
+  return keccak256(hexString as `0x${string}`)
 }
 
 /**
