@@ -2,18 +2,37 @@
 
 import { memo, useCallback, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { useReadContract } from 'wagmi'
+import { useReadContract, useAccount } from 'wagmi'
 import { CONTRACT_ADDRESS, NNS_ABI } from '@/lib/contract'
-import { Loader2, Gavel, TrendingUp } from 'lucide-react'
+import { Loader2, Gavel, TrendingUp, Filter, Clock, Eye, CheckCircle, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 
+type PhaseFilter = 'all' | 'commit' | 'reveal' | 'pending_finalization' | 'finalized'
+
 export default function AuctionsPage() {
-  // Get all registered domains
-  const { data: allDomains, isLoading } = useReadContract({
+  const [phaseFilter, setPhaseFilter] = useState<PhaseFilter>('all')
+  
+  // Get auctionable domains and filter by phase
+  const { data: searchResults, isLoading } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: NNS_ABI,
-    functionName: 'allDomains'
+    functionName: 'searchAuctions',
+    args: [phaseFilter],
+    query: {
+      refetchInterval: 10000 // Refresh every 10 seconds
+    }
   })
+
+  const domains = searchResults?.[0] || []
+  const timeRemaining = searchResults?.[1] || []
+
+  const phaseOptions: { value: PhaseFilter; label: string; icon: any; color: string }[] = [
+    { value: 'all', label: 'All Auctions', icon: Gavel, color: 'blue' },
+    { value: 'commit', label: 'Commit Phase', icon: Clock, color: 'purple' },
+    { value: 'reveal', label: 'Reveal Phase', icon: Eye, color: 'orange' },
+    { value: 'pending_finalization', label: 'Pending Finalization', icon: AlertCircle, color: 'amber' },
+    { value: 'finalized', label: 'Finalized', icon: CheckCircle, color: 'green' }
+  ]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-zinc-950 dark:via-blue-950/20 dark:to-purple-950/20 py-12 px-4 sm:px-6 lg:px-8">
@@ -60,35 +79,81 @@ export default function AuctionsPage() {
           </div>
         </motion.div>
 
-        {/* Domains List */}
+        {/* Phase Filter */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mb-8"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Filter className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+              Filter by Phase
+            </h3>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {phaseOptions.map(({ value, label, icon: Icon }) => {
+              const isActive = phaseFilter === value
+              return (
+                <button
+                  key={value}
+                  onClick={() => setPhaseFilter(value)}
+                  className={`flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all ${
+                    isActive
+                      ? value === 'all' ? 'bg-blue-500 text-white shadow-lg' :
+                        value === 'commit' ? 'bg-purple-500 text-white shadow-lg' :
+                        value === 'reveal' ? 'bg-orange-500 text-white shadow-lg' :
+                        value === 'pending_finalization' ? 'bg-amber-500 text-white shadow-lg' :
+                        'bg-green-500 text-white shadow-lg'
+                      : 'bg-white border border-zinc-200 text-zinc-700 hover:border-zinc-300 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-300'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+        </motion.div>
+
+        {/* Auctions List */}
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
           </div>
-        ) : allDomains && allDomains.length > 0 ? (
+        ) : domains && domains.length > 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.3 }}
             className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
           >
-            {allDomains.map((domain, index) => (
-              <DomainAuctionCard key={domain} domain={domain} index={index} />
+            {domains.map((domain, index) => (
+              <AuctionCard 
+                key={domain} 
+                domain={domain} 
+                timeRemainingSeconds={Number(timeRemaining[index])}
+                index={index} 
+              />
             ))}
           </motion.div>
         ) : (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.3 }}
             className="flex flex-col items-center justify-center rounded-2xl border border-zinc-200 bg-white p-12 dark:border-zinc-800 dark:bg-zinc-900"
           >
             <Gavel className="mb-4 h-16 w-16 text-zinc-400" />
             <h2 className="mb-2 text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-              No Domains Yet
+              No Auctions Found
             </h2>
             <p className="mb-6 text-center text-zinc-600 dark:text-zinc-400">
-              No domains have been registered yet. Be the first to claim one!
+              {phaseFilter === 'all' 
+                ? 'No active auctions at the moment. Start one from the search page!'
+                : `No auctions in ${phaseFilter.replace('_', ' ')} phase.`
+              }
             </p>
             <motion.a
               href="/search"
@@ -105,29 +170,67 @@ export default function AuctionsPage() {
   )
 }
 
-// Component to display individual domain auction info - memoized for performance
-const DomainAuctionCard = memo(function DomainAuctionCard({ domain, index }: { domain: string; index: number }) {
+// Component to display individual auction card with detailed info
+const AuctionCard = memo(function AuctionCard({ 
+  domain, 
+  timeRemainingSeconds,
+  index 
+}: { 
+  domain: string
+  timeRemainingSeconds: number
+  index: number 
+}) {
+  const { address } = useAccount()
   const [mounted, setMounted] = useState(false)
   
   useEffect(() => {
     setMounted(true)
   }, [])
   
-  const { data: domainMeta, isLoading } = useReadContract({
+  // Get detailed auction info
+  const { data: auctionInfo, isLoading } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: NNS_ABI,
-    functionName: 'domainMeta',
-    args: [domain]
+    functionName: 'getAuctionInfo',
+    args: [domain],
+    query: {
+      refetchInterval: 10000 // Refresh every 10 seconds
+    }
   })
 
-  const { data: owner } = useReadContract({
+  // Get user-specific info if connected
+  const { data: hasRevealed } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: NNS_ABI,
-    functionName: 'domainNameOwner',
-    args: [domain]
+    functionName: 'hasRevealed',
+    args: address ? [domain, address] : undefined,
+    query: {
+      enabled: !!address
+    }
+  })
+
+  const { data: refundableAmount } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: NNS_ABI,
+    functionName: 'getRefundableAmount',
+    args: address ? [domain, address] : undefined,
+    query: {
+      enabled: !!address
+    }
   })
 
   const formatAddress = useCallback((addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`, [])
+  
+  const formatTime = useCallback((seconds: number) => {
+    if (seconds === 0) return 'Ended'
+    const hours = Math.floor(seconds / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    const secs = seconds % 60
+    
+    if (hours > 0) return `${hours}h ${minutes}m`
+    if (minutes > 0) return `${minutes}m ${secs}s`
+    return `${secs}s`
+  }, [])
 
   if (isLoading) {
     return (
@@ -137,67 +240,107 @@ const DomainAuctionCard = memo(function DomainAuctionCard({ domain, index }: { d
     )
   }
 
-  if (!domainMeta) return null
+  if (!auctionInfo) return null
 
-  const [registrationDate, expiryDate, registrant, lastBidAmount] = domainMeta
-  // Only compute time-sensitive values after mounting to prevent hydration errors
-  const now = mounted ? Math.floor(Date.now() / 1000) : Number(expiryDate) + 1
-  const isActive = Number(expiryDate) >= now
+  const [exists, finalized, commitEnd, revealEnd, highestBidder, highestBid, timeRemaining, phase] = auctionInfo
+
+  // Phase styling
+  const phaseConfig = {
+    commit: { bg: 'bg-purple-100 dark:bg-purple-950/20', text: 'text-purple-700 dark:text-purple-400', border: 'border-purple-500/50', icon: Clock },
+    reveal: { bg: 'bg-orange-100 dark:bg-orange-950/20', text: 'text-orange-700 dark:text-orange-400', border: 'border-orange-500/50', icon: Eye },
+    pending_finalization: { bg: 'bg-amber-100 dark:bg-amber-950/20', text: 'text-amber-700 dark:text-amber-400', border: 'border-amber-500/50', icon: AlertCircle },
+    finalized: { bg: 'bg-green-100 dark:bg-green-950/20', text: 'text-green-700 dark:text-green-400', border: 'border-green-500/50', icon: CheckCircle },
+    not_started: { bg: 'bg-zinc-100 dark:bg-zinc-800', text: 'text-zinc-700 dark:text-zinc-400', border: 'border-zinc-500/50', icon: Gavel }
+  }
+
+  const config = phaseConfig[phase as keyof typeof phaseConfig] || phaseConfig.not_started
+  const PhaseIcon = config.icon
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
+      transition={{ delay: index * 0.05 }}
       whileHover={{ y: -5 }}
-      className="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm hover:shadow-xl hover:border-purple-500/50 transition-all dark:border-zinc-800 dark:bg-zinc-900"
+      className={`group relative overflow-hidden rounded-2xl border ${config.border} bg-white p-6 shadow-sm hover:shadow-xl transition-all dark:bg-zinc-900`}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className={`absolute inset-0 ${config.bg} opacity-50 group-hover:opacity-75 transition-opacity`} />
       
       <div className="relative">
+        {/* Header */}
         <div className="mb-4 flex items-start justify-between">
           <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
             {domain}
           </h3>
-          {isActive ? (
-            <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700 dark:bg-green-950/20 dark:text-green-400">
-              Active
-            </span>
-          ) : (
-            <span className="rounded-full bg-zinc-100 px-2 py-1 text-xs font-semibold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
-              Expired
-            </span>
+          <span className={`flex items-center gap-1 rounded-full ${config.bg} px-2.5 py-1 text-xs font-semibold ${config.text}`}>
+            <PhaseIcon className="h-3 w-3" />
+            {phase.replace('_', ' ')}
+          </span>
+        </div>
+
+        {/* Auction Details */}
+        <div className="mb-4 space-y-2 text-sm">
+          {timeRemainingSeconds > 0 && (
+            <div className="flex justify-between items-center">
+              <span className="text-zinc-600 dark:text-zinc-400">Time Left:</span>
+              <span className={`font-bold ${config.text}`}>
+                {formatTime(timeRemainingSeconds)}
+              </span>
+            </div>
+          )}
+          
+          {highestBid > 0 && (
+            <div className="flex justify-between">
+              <span className="text-zinc-600 dark:text-zinc-400">Highest Bid:</span>
+              <span className="font-medium text-zinc-900 dark:text-zinc-50">
+                {(Number(highestBid) / 1e18).toFixed(4)} ETH
+              </span>
+            </div>
+          )}
+          
+          {highestBidder && highestBidder !== '0x0000000000000000000000000000000000000000' && (
+            <div className="flex justify-between">
+              <span className="text-zinc-600 dark:text-zinc-400">Leading Bidder:</span>
+              <span className="font-mono font-medium text-zinc-900 dark:text-zinc-50">
+                {formatAddress(highestBidder)}
+              </span>
+            </div>
+          )}
+
+          {/* User-specific info */}
+          {address && hasRevealed && (
+            <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
+              <div className="flex items-center gap-2 text-xs text-green-700 dark:text-green-400">
+                <CheckCircle className="h-3 w-3" />
+                <span>You have revealed your bid</span>
+              </div>
+            </div>
+          )}
+          
+          {address && refundableAmount && Number(refundableAmount) > 0 && (
+            <div className="mt-2 flex items-center gap-2 text-xs text-blue-700 dark:text-blue-400">
+              <AlertCircle className="h-3 w-3" />
+              <span>Refund available: {(Number(refundableAmount) / 1e18).toFixed(4)} ETH</span>
+            </div>
           )}
         </div>
 
-        <div className="mb-4 space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-zinc-600 dark:text-zinc-400">Owner:</span>
-            <span className="font-mono font-medium text-zinc-900 dark:text-zinc-50">
-              {owner ? formatAddress(owner as string) : 'None'}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-zinc-600 dark:text-zinc-400">Last Bid:</span>
-            <span className="font-medium text-zinc-900 dark:text-zinc-50">
-              {(Number(lastBidAmount) / 1e18).toFixed(4)} ETH
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-zinc-600 dark:text-zinc-400">Expires:</span>
-            <span className="font-medium text-zinc-900 dark:text-zinc-50">
-              {new Date(Number(expiryDate) * 1000).toLocaleDateString()}
-            </span>
-          </div>
-        </div>
-
+        {/* Action Button */}
         <Link href={`/search?domain=${encodeURIComponent(domain)}`}>
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full rounded-xl bg-gradient-to-r from-purple-500 to-orange-600 px-4 py-2.5 text-sm font-semibold text-white hover:from-purple-600 hover:to-orange-700 transition-all"
+            className={`w-full rounded-xl bg-gradient-to-r px-4 py-2.5 text-sm font-semibold text-white transition-all ${
+              phase === 'commit' ? 'from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700' :
+              phase === 'reveal' ? 'from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700' :
+              phase === 'pending_finalization' ? 'from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700' :
+              'from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
+            }`}
           >
-            View Details
+            {phase === 'commit' ? 'Place Bid' :
+             phase === 'reveal' ? 'Reveal Bid' :
+             phase === 'pending_finalization' ? 'Finalize' :
+             'View Details'}
           </motion.button>
         </Link>
       </div>

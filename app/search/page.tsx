@@ -26,6 +26,7 @@ function SearchContent() {
   const [currentBids, setCurrentBids] = useState<BidData[]>([])
   const [revealBidAmount, setRevealBidAmount] = useState('')
   const [revealSecret, setRevealSecret] = useState('')
+  const [withdrawDomain, setWithdrawDomain] = useState('')
 
   const { writeContract, data: hash, isPending, isError, error } = useWriteContract()
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash })
@@ -46,6 +47,50 @@ function SearchContent() {
     address: CONTRACT_ADDRESS,
     abi: NNS_ABI,
     functionName: 'domainMeta',
+    args: searchDomain ? [searchDomain] : undefined,
+    query: {
+      enabled: !!searchDomain && searchDomain.endsWith('.ntu')
+    }
+  })
+
+  // Get auction info
+  const { data: auctionInfo, refetch: refetchAuctionInfo } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: NNS_ABI,
+    functionName: 'getAuctionInfo',
+    args: searchDomain ? [searchDomain] : undefined,
+    query: {
+      enabled: !!searchDomain && searchDomain.endsWith('.ntu'),
+      refetchInterval: 10000 // Refresh every 10 seconds
+    }
+  })
+
+  // Get user-specific auction data
+  const { data: hasRevealed } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: NNS_ABI,
+    functionName: 'hasRevealed',
+    args: searchDomain && address ? [searchDomain, address] : undefined,
+    query: {
+      enabled: !!searchDomain && !!address
+    }
+  })
+
+  const { data: refundableAmount, refetch: refetchRefundable } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: NNS_ABI,
+    functionName: 'getRefundableAmount',
+    args: searchDomain && address ? [searchDomain, address] : undefined,
+    query: {
+      enabled: !!searchDomain && !!address
+    }
+  })
+
+  // Check if domain is auctionable
+  const { data: isAuctionable } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: NNS_ABI,
+    functionName: 'isAuctionable',
     args: searchDomain ? [searchDomain] : undefined,
     query: {
       enabled: !!searchDomain && searchDomain.endsWith('.ntu')
@@ -155,6 +200,17 @@ function SearchContent() {
     })
   }, [searchDomain, writeContract])
 
+  const withdrawFunds = useCallback(async () => {
+    if (!searchDomain) return
+    
+    writeContract({
+      address: CONTRACT_ADDRESS,
+      abi: NNS_ABI,
+      functionName: 'withdraw',
+      args: [searchDomain]
+    })
+  }, [searchDomain, writeContract])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-zinc-950 dark:via-blue-950/20 dark:to-purple-950/20 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
@@ -209,6 +265,90 @@ function SearchContent() {
                     )}
                   </div>
 
+                  {/* Auction Status Info */}
+                  {auctionInfo && auctionInfo[0] && (
+                    <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/20">
+                      <h3 className="mb-2 text-sm font-semibold text-blue-900 dark:text-blue-400">
+                        Auction Status
+                      </h3>
+                      <div className="space-y-1 text-sm text-blue-800 dark:text-blue-500">
+                        <div className="flex justify-between">
+                          <span>Phase:</span>
+                          <span className="font-semibold capitalize">{auctionInfo[7].replace('_', ' ')}</span>
+                        </div>
+                        {auctionInfo[6] > 0 && (
+                          <div className="flex justify-between">
+                            <span>Time Remaining:</span>
+                            <span className="font-semibold">
+                              {Math.floor(Number(auctionInfo[6]) / 3600)}h {Math.floor((Number(auctionInfo[6]) % 3600) / 60)}m
+                            </span>
+                          </div>
+                        )}
+                        {auctionInfo[5] > 0 && (
+                          <div className="flex justify-between">
+                            <span>Current Highest Bid:</span>
+                            <span className="font-semibold">{(Number(auctionInfo[5]) / 1e18).toFixed(4)} ETH</span>
+                          </div>
+                        )}
+                        {address && hasRevealed && (
+                          <div className="mt-2 pt-2 border-t border-blue-300 dark:border-blue-800 flex items-center gap-2 text-green-700 dark:text-green-400">
+                            <CheckCircle className="h-4 w-4" />
+                            <span>You have revealed your bid</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Refund/Withdrawal Section */}
+                  {address && refundableAmount && Number(refundableAmount) > 0 && (
+                    <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/20">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="mb-1 text-sm font-semibold text-amber-900 dark:text-amber-400">
+                            Refund Available
+                          </h3>
+                          <p className="text-xl font-bold text-amber-900 dark:text-amber-300">
+                            {(Number(refundableAmount) / 1e18).toFixed(4)} ETH
+                          </p>
+                        </div>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={withdrawFunds}
+                          disabled={isPending || isConfirming}
+                          className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-2 text-sm font-semibold text-white hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 transition-all"
+                        >
+                          {isPending || isConfirming ? (
+                            <span className="flex items-center gap-2">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Withdrawing...
+                            </span>
+                          ) : (
+                            'Withdraw'
+                          )}
+                        </motion.button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Auctionable Status Warning */}
+                  {isAvailable && !isAuctionable && (
+                    <div className="mb-6 rounded-xl border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-900 dark:bg-yellow-950/20">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-500 mt-0.5" />
+                        <div>
+                          <h3 className="font-semibold text-yellow-900 dark:text-yellow-400">
+                            Domain Not Auctionable
+                          </h3>
+                          <p className="mt-1 text-sm text-yellow-800 dark:text-yellow-500">
+                            This domain is not in the auctionable list. Only the contract owner can add it to enable auctions.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Action Section */}
                   {!isConnected ? (
                     <div className="rounded-xl bg-yellow-50 p-6 dark:bg-yellow-950/20">
@@ -224,7 +364,7 @@ function SearchContent() {
                         </div>
                       </div>
                     </div>
-                  ) : isAvailable ? (
+                  ) : isAvailable && isAuctionable ? (
                     <div className="space-y-6">
                       {/* Step Indicators */}
                       <div className="flex items-center justify-center gap-4">
