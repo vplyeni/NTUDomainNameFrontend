@@ -232,6 +232,13 @@ const AuctionCard = memo(function AuctionCard({
     return `${secs}s`
   }, [])
 
+  // Format ETH amounts without trailing zeros
+  const formatETH = useCallback((weiAmount: bigint | number | string): string => {
+    const eth = Number(weiAmount) / 1e18
+    // Remove trailing zeros and unnecessary decimal point
+    return eth.toFixed(4).replace(/\.?0+$/, '') || '0'
+  }, [])
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
@@ -293,7 +300,7 @@ const AuctionCard = memo(function AuctionCard({
             <div className="flex justify-between">
               <span className="text-zinc-600 dark:text-zinc-400">Highest Bid:</span>
               <span className="font-medium text-zinc-900 dark:text-zinc-50">
-                {(Number(highestBid) / 1e18).toFixed(4)} ETH
+                {formatETH(highestBid)} ETH
               </span>
             </div>
           )}
@@ -320,7 +327,7 @@ const AuctionCard = memo(function AuctionCard({
           {address && refundableAmount && Number(refundableAmount) > 0 && (
             <div className="mt-2 flex items-center gap-2 text-xs text-blue-700 dark:text-blue-400">
               <AlertCircle className="h-3 w-3" />
-              <span>Refund available: {(Number(refundableAmount) / 1e18).toFixed(4)} ETH</span>
+              <span>Refund available: {formatETH(refundableAmount)} ETH</span>
             </div>
           )}
         </div>

@@ -33,6 +33,13 @@ function SearchContent() {
   const [revealSecret, setRevealSecret] = useState('')
   const [withdrawDomain, setWithdrawDomain] = useState('')
 
+  // Format ETH amounts without trailing zeros
+  const formatETH = useCallback((weiAmount: bigint | number | string): string => {
+    const eth = Number(weiAmount) / 1e18
+    // Remove trailing zeros and unnecessary decimal point
+    return eth.toFixed(4).replace(/\.?0+$/, '') || '0'
+  }, [])
+
   const { writeContract, data: hash, isPending, isError, error } = useWriteContract()
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash })
 
@@ -347,7 +354,7 @@ function SearchContent() {
                         {auctionInfo[5] > 0 && (
                           <div className="flex justify-between">
                             <span>Current Highest Bid:</span>
-                            <span className="font-semibold">{(Number(auctionInfo[5]) / 1e18).toFixed(4)} ETH</span>
+                            <span className="font-semibold">{formatETH(auctionInfo[5])} ETH</span>
                           </div>
                         )}
                         {address && hasRevealed && (
@@ -369,10 +376,16 @@ function SearchContent() {
                           <div className="flex items-start justify-between">
                             <div>
                               <h3 className="mb-1 text-sm font-semibold text-amber-900 dark:text-amber-400">
-                                Refund Available
+                                Funds Available to Withdraw
                               </h3>
                               <p className="text-xl font-bold text-amber-900 dark:text-amber-300">
-                                {(Number(refundableAmount) / 1e18).toFixed(4)} ETH
+                                {formatETH(refundableAmount)} ETH
+                              </p>
+                              <p className="mt-1 text-xs text-amber-800 dark:text-amber-500">
+                                {auctionInfo[4] === address ? 
+                                  'Excess funds from multiple bids (winning bid already deducted)' : 
+                                  'Full refund - you did not win this auction'
+                                }
                               </p>
                             </div>
                             <motion.button
@@ -400,11 +413,11 @@ function SearchContent() {
                             <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
                             <div>
                               <h3 className="mb-1 text-sm font-semibold text-blue-900 dark:text-blue-400">
-                                Refund Pending
+                                Funds Pending Withdrawal
                               </h3>
                               <p className="text-sm text-blue-800 dark:text-blue-500">
-                                You have <strong>{(Number(refundableAmount) / 1e18).toFixed(4)} ETH</strong> available for refund. 
-                                The auction must be finalized before you can withdraw.
+                                You have <strong>{formatETH(refundableAmount)} ETH</strong> that will be available for withdrawal once the auction is finalized.
+                                {currentBids.length > 1 && ' (Multiple bids detected - excess funds will be refunded)'}
                               </p>
                             </div>
                           </div>
