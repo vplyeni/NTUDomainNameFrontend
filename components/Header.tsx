@@ -3,13 +3,15 @@
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { memo, useCallback, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Wallet, LogOut, Loader2 } from 'lucide-react'
+import { Wallet, LogOut, Loader2, Crown } from 'lucide-react'
 import Link from 'next/link'
+import { useIsOwner } from '@/lib/useIsOwner'
 
 export const Header = memo(function Header() {
   const { address, isConnected } = useAccount()
   const { connectors, connect, isPending } = useConnect()
   const { disconnect } = useDisconnect()
+  const { isOwner } = useIsOwner()
 
   const formatAddress = useCallback((addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`
@@ -76,6 +78,17 @@ export const Header = memo(function Header() {
                 Auctions
               </motion.span>
             </Link>
+            {isOwner && (
+              <Link href="/owner">
+                <motion.span
+                  whileHover={{ scale: 1.05 }}
+                  className="flex items-center gap-1.5 text-sm font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors"
+                >
+                  <Crown className="h-4 w-4" />
+                  Owner
+                </motion.span>
+              </Link>
+            )}
           </nav>
 
           {/* Wallet Connection */}

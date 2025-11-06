@@ -56,6 +56,38 @@ Search → Available? → Start Auction
 - Status badges
 - Expiry countdown
 
+### Owner Panel 👑
+```
+┌─────────────────────────────────┐
+│ 👑 Owner Panel                  │
+├─────────────────────────────────┤
+│ ➕ Add Single Domain            │
+│ [computer.ntu     ] [Add]       │
+├─────────────────────────────────┤
+│ 📦 Add Batch Domains            │
+│ [computer.ntu                   │
+│  science.ntu                    │
+│  engineering.ntu    ] [Add All] │
+├─────────────────────────────────┤
+│ 🔍 Search & Manage              │
+│ [Search...                    ] │
+│                                 │
+│ ┌─────────────────────────┐    │
+│ │ computer.ntu      [❌]  │    │
+│ │ science.ntu       [❌]  │    │
+│ │ engineering.ntu   [❌]  │    │
+│ └─────────────────────────┘    │
+└─────────────────────────────────┘
+```
+
+**Features:**
+- Only visible to contract owner
+- Add single or batch domains
+- Fuzzy search (case-insensitive)
+- Remove domains from auction list
+- Real-time validation
+- Transaction tracking
+
 ## 🎯 User Workflows
 
 ### 1. First-Time User
@@ -96,6 +128,30 @@ Finalization:
 - Others get refunds
 ```
 
+### 4. Contract Owner
+```
+Initial Setup:
+1. Deploy contract
+2. Connect owner wallet
+3. Navigate to "Owner" tab
+4. Add initial domains (batch)
+5. Verify domain list
+
+Regular Management:
+1. Monitor auctionable domains
+2. Add new domains as needed
+3. Use search to find specific domains
+4. Remove unwanted domains
+5. Review domain list periodically
+
+Features:
+- Exclusive access to Owner panel
+- Crown icon in navigation
+- Batch operations for efficiency
+- Fuzzy search capability
+- Real-time updates
+```
+
 ## 🎨 Design System
 
 ### Colors
@@ -108,6 +164,13 @@ Status Colors:
   Warning: Orange #F59E0B
   Error: Red #EF4444
   Info: Blue #3B82F6
+  Owner: Amber #F59E0B (Crown/Admin)
+
+Action Colors:
+  Add Single: Blue #3B82F6
+  Add Batch: Green #10B981
+  Search/List: Purple #8B5CF6
+  Remove: Red #EF4444
 
 Neutrals:
   Zinc 50-950 (Light to Dark)
