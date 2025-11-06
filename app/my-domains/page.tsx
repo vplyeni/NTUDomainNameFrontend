@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { CONTRACT_ADDRESS, NNS_ABI } from '@/lib/contract'
@@ -41,7 +41,7 @@ export default function MyDomainsPage() {
     }
   })
 
-  const handleTransfer = async () => {
+  const handleTransfer = useCallback(async () => {
     if (!selectedDomain || !transferAddress || !isAddress(transferAddress)) return
     
     writeContract({
@@ -50,9 +50,9 @@ export default function MyDomainsPage() {
       functionName: 'transferDomain',
       args: [selectedDomain, transferAddress as `0x${string}`]
     })
-  }
+  }, [selectedDomain, transferAddress, writeContract])
 
-  const handleRenew = async () => {
+  const handleRenew = useCallback(async () => {
     if (!selectedDomain || !renewalFee) return
     
     writeContract({
@@ -62,19 +62,19 @@ export default function MyDomainsPage() {
       args: [selectedDomain],
       value: parseEther(renewalFee)
     })
-  }
+  }, [selectedDomain, renewalFee, writeContract])
 
-  const openTransferModal = (domain: string) => {
+  const openTransferModal = useCallback((domain: string) => {
     setSelectedDomain(domain)
     setShowTransferModal(true)
     setTransferAddress('')
-  }
+  }, [])
 
-  const openRenewModal = (domain: string, lastBidAmount: bigint) => {
+  const openRenewModal = useCallback((domain: string, lastBidAmount: bigint) => {
     setSelectedDomain(domain)
     setRenewalFee((Number(lastBidAmount) / 1e18).toString())
     setShowRenewModal(true)
-  }
+  }, [])
 
   if (!isConnected) {
     return (
@@ -334,8 +334,8 @@ export default function MyDomainsPage() {
   )
 }
 
-// Component to fetch and display domain metadata
-function DomainMetaCard({ 
+// Component to fetch and display domain metadata - memoized for performance
+const DomainMetaCard = memo(function DomainMetaCard({ 
   domain, 
   index, 
   onTransfer, 
@@ -363,7 +363,7 @@ function DomainMetaCard({
 
   if (!domainMeta) return null
 
-  const [registrationDate, expiryDate, registrant, lastBidAmount, active] = domainMeta
+  const [registrationDate, expiryDate, registrant, lastBidAmount] = domainMeta
   const now = Math.floor(Date.now() / 1000)
   const isExpired = Number(expiryDate) < now
   const canRenew = isExpired && (now <= Number(expiryDate) + 90 * 24 * 60 * 60) // within 90 day grace period
@@ -386,8 +386,8 @@ function DomainMetaCard({
         <div className="mb-4 space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-zinc-600 dark:text-zinc-400">Status:</span>
-            <span className={`font-medium ${active && !isExpired ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-              {active && !isExpired ? 'Active' : 'Expired'}
+            <span className={`font-medium ${!isExpired ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+              {!isExpired ? 'Active' : 'Expired'}
             </span>
           </div>
           <div className="flex justify-between">
@@ -421,5 +421,5 @@ function DomainMetaCard({
       </div>
     </motion.div>
   )
-}
+})
 

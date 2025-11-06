@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SearchBar } from '@/components/SearchBar'
@@ -57,14 +57,14 @@ function SearchContent() {
     return '0x' + Array.from(randomBytes).map(b => b.toString(16).padStart(2, '0')).join('')
   }
 
-  const handleSearch = (domain: string) => {
+  const handleSearch = useCallback((domain: string) => {
     setSearchDomain(domain)
     setStep('search')
     refetchAvailability()
     refetchMeta()
-  }
+  }, [refetchAvailability, refetchMeta])
 
-  const startAuction = async () => {
+  const startAuction = useCallback(async () => {
     if (!searchDomain) return
     
     writeContract({
@@ -73,9 +73,9 @@ function SearchContent() {
       functionName: 'startAuction',
       args: [searchDomain]
     })
-  }
+  }, [searchDomain, writeContract])
 
-  const commitBid = async () => {
+  const commitBid = useCallback(async () => {
     if (!searchDomain || !bidAmount || !address) return
     
     const generatedSecret = generateSecret()
@@ -98,9 +98,9 @@ function SearchContent() {
       args: [searchDomain, commitment],
       value: parseEther(bidAmount)
     })
-  }
+  }, [searchDomain, bidAmount, address, writeContract])
 
-  const revealBid = async () => {
+  const revealBid = useCallback(async () => {
     if (!savedBidData) {
       // Try to load from localStorage
       const stored = localStorage.getItem('nns_bid_data')
@@ -124,9 +124,9 @@ function SearchContent() {
       functionName: 'revealBid',
       args: [savedBidData.domain, parseEther(savedBidData.bidAmount), savedBidData.secret as `0x${string}`]
     })
-  }
+  }, [savedBidData, writeContract])
 
-  const finalizeAuction = async () => {
+  const finalizeAuction = useCallback(async () => {
     if (!searchDomain) return
     
     writeContract({
@@ -135,7 +135,7 @@ function SearchContent() {
       functionName: 'finalize',
       args: [searchDomain]
     })
-  }
+  }, [searchDomain, writeContract])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-zinc-950 dark:via-blue-950/20 dark:to-purple-950/20 py-12 px-4 sm:px-6 lg:px-8">

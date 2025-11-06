@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useReadContract } from 'wagmi'
 import { CONTRACT_ADDRESS, NNS_ABI } from '@/lib/contract'
@@ -104,8 +105,8 @@ export default function AuctionsPage() {
   )
 }
 
-// Component to display individual domain auction info
-function DomainAuctionCard({ domain, index }: { domain: string; index: number }) {
+// Component to display individual domain auction info - memoized for performance
+const DomainAuctionCard = memo(function DomainAuctionCard({ domain, index }: { domain: string; index: number }) {
   const { data: domainMeta, isLoading } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: NNS_ABI,
@@ -120,6 +121,8 @@ function DomainAuctionCard({ domain, index }: { domain: string; index: number })
     args: [domain]
   })
 
+  const formatAddress = useCallback((addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`, [])
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
@@ -130,8 +133,9 @@ function DomainAuctionCard({ domain, index }: { domain: string; index: number })
 
   if (!domainMeta) return null
 
-  const [registrationDate, expiryDate, registrant, lastBidAmount, active] = domainMeta
-  const formatAddress = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`
+  const [registrationDate, expiryDate, registrant, lastBidAmount] = domainMeta
+  const now = Math.floor(Date.now() / 1000)
+  const isActive = Number(expiryDate) >= now
 
   return (
     <motion.div
@@ -148,7 +152,7 @@ function DomainAuctionCard({ domain, index }: { domain: string; index: number })
           <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
             {domain}
           </h3>
-          {active ? (
+          {isActive ? (
             <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700 dark:bg-green-950/20 dark:text-green-400">
               Active
             </span>
@@ -192,5 +196,5 @@ function DomainAuctionCard({ domain, index }: { domain: string; index: number })
       </div>
     </motion.div>
   )
-}
+})
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Loader2, AlertCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -12,13 +12,13 @@ interface SearchBarProps {
   autoFocus?: boolean
 }
 
-export function SearchBar({ onSearch, placeholder = "Search for your perfect domain...", autoFocus = false }: SearchBarProps) {
+export const SearchBar = memo(function SearchBar({ onSearch, placeholder = "Search for your perfect domain...", autoFocus = false }: SearchBarProps) {
   const [domain, setDomain] = useState('')
   const [isSearching, setIsSearching] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     if (!domain.trim()) return
 
@@ -42,9 +42,9 @@ export function SearchBar({ onSearch, placeholder = "Search for your perfect dom
     }
     
     setTimeout(() => setIsSearching(false), 500)
-  }
+  }, [domain, onSearch, router])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setDomain(value)
     
@@ -52,7 +52,7 @@ export function SearchBar({ onSearch, placeholder = "Search for your perfect dom
     if (error) {
       setError(null)
     }
-  }
+  }, [error])
 
   return (
     <motion.form
@@ -122,5 +122,5 @@ export function SearchBar({ onSearch, placeholder = "Search for your perfect dom
       </AnimatePresence>
     </motion.form>
   )
-}
+})
 

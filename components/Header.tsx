@@ -1,18 +1,30 @@
 'use client'
 
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
+import { memo, useCallback, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Wallet, LogOut, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
-export function Header() {
+export const Header = memo(function Header() {
   const { address, isConnected } = useAccount()
   const { connectors, connect, isPending } = useConnect()
   const { disconnect } = useDisconnect()
 
-  const formatAddress = (addr: string) => {
+  const formatAddress = useCallback((addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`
-  }
+  }, [])
+
+  const handleConnect = useCallback(() => {
+    if (connectors[0]) {
+      connect({ connector: connectors[0] })
+    }
+  }, [connectors, connect])
+
+  const formattedAddress = useMemo(() => 
+    address ? formatAddress(address) : '', 
+    [address, formatAddress]
+  )
 
   return (
     <motion.header
@@ -75,9 +87,9 @@ export function Header() {
                 className="flex items-center gap-2"
               >
                 <div className="hidden sm:flex items-center gap-2 rounded-full bg-zinc-100 dark:bg-zinc-800 px-4 py-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                  <div className="h-2 w-2 rounded-full bg-green-500" />
                   <span className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                    {formatAddress(address!)}
+                    {formattedAddress}
                   </span>
                 </div>
                 <motion.button
@@ -94,7 +106,7 @@ export function Header() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => connect({ connector: connectors[0] })}
+                onClick={handleConnect}
                 disabled={isPending}
                 className="flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-2 text-sm font-medium text-white hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50"
               >
@@ -111,5 +123,5 @@ export function Header() {
       </div>
     </motion.header>
   )
-}
+})
 

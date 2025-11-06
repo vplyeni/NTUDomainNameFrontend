@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useMemo, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Clock, User, Calendar, CheckCircle, XCircle } from 'lucide-react'
 import { formatDistance } from 'date-fns'
@@ -15,7 +16,7 @@ interface DomainCardProps {
   isActive?: boolean
 }
 
-export function DomainCard({
+export const DomainCard = memo(function DomainCard({
   name,
   owner,
   expiryDate,
@@ -26,11 +27,11 @@ export function DomainCard({
   isActive = true
 }: DomainCardProps) {
   
-  const formatAddress = (addr: string) => {
+  const formatAddress = useCallback((addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`
-  }
+  }, [])
 
-  const getExpiryStatus = () => {
+  const expiryStatus = useMemo(() => {
     if (!expiryDate) return null
     const now = Date.now() / 1000
     const timeLeft = expiryDate - now
@@ -38,9 +39,7 @@ export function DomainCard({
     if (timeLeft < 0) return { label: 'Expired', color: 'text-red-500', bgColor: 'bg-red-50 dark:bg-red-950/20' }
     if (timeLeft < 30 * 24 * 60 * 60) return { label: 'Expiring Soon', color: 'text-orange-500', bgColor: 'bg-orange-50 dark:bg-orange-950/20' }
     return { label: 'Active', color: 'text-green-500', bgColor: 'bg-green-50 dark:bg-green-950/20' }
-  }
-
-  const expiryStatus = getExpiryStatus()
+  }, [expiryDate])
 
   return (
     <motion.div
@@ -127,5 +126,5 @@ export function DomainCard({
       </div>
     </motion.div>
   )
-}
+})
 

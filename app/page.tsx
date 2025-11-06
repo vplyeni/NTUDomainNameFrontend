@@ -27,58 +27,15 @@ const features = [
   }
 ]
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-}
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5
-    }
-  }
-}
-
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-zinc-950 dark:via-blue-950/20 dark:to-purple-950/20">
       {/* Hero Section */}
       <section className="relative overflow-hidden px-4 py-20 sm:px-6 lg:px-8">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <motion.div
-            animate={{
-              scale: [1, 1.2, 1],
-              rotate: [0, 90, 0],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-            className="absolute -top-1/2 -right-1/2 h-full w-full rounded-full bg-gradient-to-br from-blue-400/20 to-purple-400/20 blur-3xl"
-          />
-          <motion.div
-            animate={{
-              scale: [1.2, 1, 1.2],
-              rotate: [90, 0, 90],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-            className="absolute -bottom-1/2 -left-1/2 h-full w-full rounded-full bg-gradient-to-tr from-purple-400/20 to-blue-400/20 blur-3xl"
-          />
+        {/* Static background elements - removed animations for performance */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-1/2 -right-1/2 h-full w-full rounded-full bg-gradient-to-br from-blue-400/20 to-purple-400/20 blur-3xl" />
+          <div className="absolute -bottom-1/2 -left-1/2 h-full w-full rounded-full bg-gradient-to-tr from-purple-400/20 to-blue-400/20 blur-3xl" />
         </div>
 
         <div className="relative mx-auto max-w-7xl">
@@ -130,22 +87,14 @@ export default function Home() {
             </div>
 
             {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3"
-            >
+            <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3">
               {[
                 { label: 'Auction Duration', value: 'Configurable' },
                 { label: 'Renewal Period', value: '90 Days Grace' },
                 { label: 'Domain Ownership', value: '1 Year + Renewable' },
-              ].map((stat, i) => (
-                <motion.div
+              ].map((stat) => (
+                <div
                   key={stat.label}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.7 + i * 0.1 }}
                   className="rounded-2xl border border-zinc-200 bg-white/50 p-6 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/50"
                 >
                   <div className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
@@ -154,9 +103,9 @@ export default function Home() {
                   <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                     {stat.label}
                   </div>
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -179,19 +128,11 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4"
-          >
-            {features.map((feature, index) => (
-              <motion.div
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {features.map((feature) => (
+              <div
                 key={feature.title}
-                variants={itemVariants}
-                whileHover={{ y: -5 }}
-                className="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm transition-all hover:border-blue-500/50 hover:shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
+                className="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm transition-all hover:border-blue-500/50 hover:shadow-xl hover:-translate-y-1 dark:border-zinc-800 dark:bg-zinc-900"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="relative">
@@ -205,9 +146,9 @@ export default function Home() {
                     {feature.description}
                   </p>
                 </div>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
