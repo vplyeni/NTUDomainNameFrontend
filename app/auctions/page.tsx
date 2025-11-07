@@ -262,7 +262,7 @@ const AuctionCard = memo(function AuctionCard({
 
   const config = phaseConfig[phase as keyof typeof phaseConfig] || phaseConfig.not_started
   const PhaseIcon = config.icon
-
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -324,14 +324,13 @@ const AuctionCard = memo(function AuctionCard({
             </div>
           )}
           
-          {address && refundableAmount && Number(refundableAmount) > 0 && (
+          {address && refundableAmount && Number(formatETH(refundableAmount)) > 0 ? (
             <div className="mt-2 flex items-center gap-2 text-xs text-blue-700 dark:text-blue-400">
               <AlertCircle className="h-3 w-3" />
               <span>Refund available: {formatETH(refundableAmount)} ETH</span>
             </div>
-          )}
+          ) : null}
         </div>
-
         {/* Action Button */}
         <Link href={`/search?domain=${encodeURIComponent(domain)}&phase=${phase}`}>
           <motion.button
