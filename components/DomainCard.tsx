@@ -64,12 +64,12 @@ export const DomainCard = memo(function DomainCard({
             <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-1">
               {name}
             </h3>
-            {expiryStatus && (
+            {expiryStatus ? (
               <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${expiryStatus.bgColor} ${expiryStatus.color}`}>
                 {expiryStatus.label === 'Active' ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
                 {expiryStatus.label}
               </span>
-            )}
+            ) : null}
           </div>
           {isAvailable ? (
             <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-green-100 text-green-700 dark:bg-green-950/20 dark:text-green-400">
@@ -86,7 +86,7 @@ export const DomainCard = memo(function DomainCard({
 
         {/* Info Grid */}
         <div className="space-y-3 mb-4">
-          {owner && (
+          {owner ? (
             <div className="flex items-center gap-2 text-sm">
               <User className="h-4 w-4 text-zinc-400" />
               <span className="text-zinc-600 dark:text-zinc-400">Owner:</span>
@@ -94,9 +94,9 @@ export const DomainCard = memo(function DomainCard({
                 {formatAddress(owner)}
               </span>
             </div>
-          )}
+          ) : null}
           
-          {registrationDate && mounted && (
+          {registrationDate && mounted ? (
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-zinc-400" />
               <span className="text-zinc-600 dark:text-zinc-400">Registered:</span>
@@ -104,9 +104,9 @@ export const DomainCard = memo(function DomainCard({
                 {formatDistance(new Date(registrationDate * 1000), new Date(), { addSuffix: true })}
               </span>
             </div>
-          )}
+          ) : null}
           
-          {expiryDate && mounted && (
+          {expiryDate && mounted ? (
             <div className="flex items-center gap-2 text-sm">
               <Clock className="h-4 w-4 text-zinc-400" />
               <span className="text-zinc-600 dark:text-zinc-400">Expires:</span>
@@ -114,11 +114,11 @@ export const DomainCard = memo(function DomainCard({
                 {formatDistance(new Date(expiryDate * 1000), new Date(), { addSuffix: true })}
               </span>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Action Button */}
-        {onAction && (
+        {onAction ? (
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -127,7 +127,7 @@ export const DomainCard = memo(function DomainCard({
           >
             {actionLabel}
           </motion.button>
-        )}
+        ) : null}
       </div>
     </motion.div>
   )

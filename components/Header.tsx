@@ -98,7 +98,7 @@ export const Header = memo(function Header() {
                 Send
               </motion.span>
             </Link>
-            {process.env.NEXT_PUBLIC_DEBUG_MODE === 'true' && (
+            {process.env.NEXT_PUBLIC_DEBUG_MODE === 'true' ? (
               <Link href="/debug">
                 <motion.span
                   whileHover={{ scale: 1.05 }}
@@ -107,8 +107,8 @@ export const Header = memo(function Header() {
                   Debug
                 </motion.span>
               </Link>
-            )}
-            {mounted && isOwner && (
+            ) : null}
+            {mounted && isOwner ? (
               <Link href="/owner">
                 <motion.span
                   whileHover={{ scale: 1.05 }}
@@ -118,7 +118,7 @@ export const Header = memo(function Header() {
                   Owner
                 </motion.span>
               </Link>
-            )}
+            ) : null}
           </nav>
 
           {/* Wallet Connection */}

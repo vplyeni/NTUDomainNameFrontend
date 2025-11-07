@@ -96,7 +96,7 @@ export default function DebugPage() {
           </div>
 
           {/* Network Mismatch Warning */}
-          {isConnected && chainId !== sepolia.id && (
+          {isConnected && chainId !== sepolia.id ? (
             <div className="mb-8 rounded-xl border border-yellow-500/20 bg-yellow-500/10 p-4">
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
@@ -110,7 +110,7 @@ export default function DebugPage() {
                 </div>
               </div>
             </div>
-          )}
+          ) : null}
 
           {/* Contract Configuration */}
           <div className="mb-8 space-y-4">
@@ -148,16 +148,16 @@ export default function DebugPage() {
                   </div>
                 </div>
               </div>
-              {nnsOwner && (
+              {nnsOwner ? (
                 <div className="mt-2 font-mono text-xs text-zinc-700 dark:text-zinc-300">
                   Owner: {nnsOwner}
                 </div>
-              )}
-              {nnsError && (
+              ) : null}
+              {nnsError ? (
                 <div className="mt-2 text-xs text-red-600 dark:text-red-400">
                   ❌ Failed to read from contract. Contract might not exist at this address.
                 </div>
-              )}
+              ) : null}
             </div>
 
             {/* ALP Name Test */}
@@ -173,16 +173,16 @@ export default function DebugPage() {
                   </div>
                 </div>
               </div>
-              {alpName && (
+              {alpName ? (
                 <div className="mt-2 font-mono text-xs text-zinc-700 dark:text-zinc-300">
                   Token Name: {alpName}
                 </div>
-              )}
-              {alpError && (
+              ) : null}
+              {alpError ? (
                 <div className="mt-2 text-xs text-red-600 dark:text-red-400">
                   ❌ Failed to read from contract. Contract might not exist at this address.
                 </div>
-              )}
+              ) : null}
             </div>
 
             {/* All Domains Test */}
@@ -198,21 +198,21 @@ export default function DebugPage() {
                   </div>
                 </div>
               </div>
-              {allDomains && (
+              {allDomains ? (
                 <div className="mt-2 font-mono text-xs text-zinc-700 dark:text-zinc-300">
                   Total Domains: {(allDomains as string[]).length}
-                  {(allDomains as string[]).length > 0 && (
+                  {(allDomains as string[]).length > 0 ? (
                     <div className="mt-1">
                       Domains: {(allDomains as string[]).join(', ')}
                     </div>
-                  )}
+                  ) : null}
                 </div>
-              )}
-              {domainsError && (
+              ) : null}
+              {domainsError ? (
                 <div className="mt-2 text-xs text-red-600 dark:text-red-400">
                   ❌ Failed to read from contract.
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
 
@@ -220,13 +220,13 @@ export default function DebugPage() {
           <div className="mt-8 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
             <h3 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">💡 Diagnosis</h3>
             <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-300">
-              {!isConnected && <li>• Please connect your wallet first</li>}
-              {isConnected && chainId !== sepolia.id && <li>• Switch to Sepolia network in your wallet</li>}
-              {nnsError && <li>• NNS contract cannot be read - verify deployment</li>}
-              {alpError && <li>• ALP contract cannot be read - verify deployment</li>}
-              {!nnsError && !alpError && nnsOwner && alpName && (
+              {!isConnected ? <li>• Please connect your wallet first</li> : null}
+              {isConnected && chainId !== sepolia.id ? <li>• Switch to Sepolia network in your wallet</li> : null}
+              {nnsError ? <li>• NNS contract cannot be read - verify deployment</li> : null}
+              {alpError ? <li>• ALP contract cannot be read - verify deployment</li> : null}
+              {!nnsError && !alpError && nnsOwner && alpName ? (
                 <li className="text-green-600 dark:text-green-400">✓ All contracts are working correctly!</li>
-              )}
+              ) : null}
             </ul>
           </div>
 

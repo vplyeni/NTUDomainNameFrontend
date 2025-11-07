@@ -230,7 +230,7 @@ export default function OwnerPage() {
         </motion.div>
 
         {/* Status Messages */}
-        {error && (
+        {error ? (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -239,9 +239,9 @@ export default function OwnerPage() {
             <AlertCircle className="h-5 w-5" />
             <span>{error}</span>
           </motion.div>
-        )}
+        ) : null}
 
-        {success && (
+        {success ? (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -250,7 +250,7 @@ export default function OwnerPage() {
             <CheckCircle className="h-5 w-5" />
             <span>{success}</span>
           </motion.div>
-        )}
+        ) : null}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Add Single Domain */}
@@ -369,11 +369,11 @@ export default function OwnerPage() {
               placeholder="Search domains..."
               className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-zinc-900 placeholder-zinc-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
             />
-            {searchQuery && (
+            {searchQuery ? (
               <p className="mt-2 text-sm text-zinc-600">
                 Found {searchResults?.length || 0} matching domain(s)
               </p>
-            )}
+            ) : null}
           </div>
 
           {/* Domain List */}
@@ -418,13 +418,13 @@ export default function OwnerPage() {
             )}
           </div>
 
-          {!searchQuery && displayDomains && displayDomains.length > 0 && (
+          {!searchQuery && displayDomains && displayDomains.length > 0 ? (
             <div className="mt-4 pt-4 border-t border-zinc-200">
               <p className="text-sm text-zinc-600 text-center">
                 Total: <span className="font-semibold text-zinc-900">{displayDomains.length}</span> auctionable domain(s)
               </p>
             </div>
-          )}
+          ) : null}
         </motion.div>
 
         {/* Info Box */}

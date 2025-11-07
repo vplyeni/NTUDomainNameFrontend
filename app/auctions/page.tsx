@@ -287,42 +287,42 @@ const AuctionCard = memo(function AuctionCard({
 
         {/* Auction Details */}
         <div className="mb-4 space-y-2 text-sm">
-          {timeRemainingSeconds > 0 && (
+          {timeRemainingSeconds > 0 ? (
             <div className="flex justify-between items-center">
               <span className="text-zinc-600 dark:text-zinc-400">Time Left:</span>
               <span className={`font-bold ${config.text}`}>
                 {formatTime(timeRemainingSeconds)}
               </span>
             </div>
-          )}
+          ) : null}
           
-          {highestBid > 0 && (
+          {highestBid > 0 ? (
             <div className="flex justify-between">
               <span className="text-zinc-600 dark:text-zinc-400">Highest Bid:</span>
               <span className="font-medium text-zinc-900 dark:text-zinc-50">
                 {formatETH(highestBid)} ETH
               </span>
             </div>
-          )}
+          ) : null}
           
-          {highestBidder && highestBidder !== '0x0000000000000000000000000000000000000000' && (
+          {highestBidder && highestBidder !== '0x0000000000000000000000000000000000000000' ? (
             <div className="flex justify-between">
               <span className="text-zinc-600 dark:text-zinc-400">Leading Bidder:</span>
               <span className="font-mono font-medium text-zinc-900 dark:text-zinc-50">
                 {formatAddress(highestBidder)}
               </span>
             </div>
-          )}
+          ) : null}
 
           {/* User-specific info */}
-          {address && hasRevealed && (
+          {address && hasRevealed ? (
             <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
               <div className="flex items-center gap-2 text-xs text-green-700 dark:text-green-400">
                 <CheckCircle className="h-3 w-3" />
                 <span>You have revealed your bid</span>
               </div>
             </div>
-          )}
+          ) : null}
           
           {address && refundableAmount && Number(formatETH(refundableAmount)) > 0 ? (
             <div className="mt-2 flex items-center gap-2 text-xs text-blue-700 dark:text-blue-400">

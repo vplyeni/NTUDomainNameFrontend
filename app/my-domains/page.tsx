@@ -231,7 +231,7 @@ export default function MyDomainsPage() {
                   </motion.button>
                 </div>
 
-                {isConfirmed && (
+                {isConfirmed ? (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -241,7 +241,7 @@ export default function MyDomainsPage() {
                       ✅ Domain transferred successfully!
                     </p>
                   </motion.div>
-                )}
+                ) : null}
               </motion.div>
             </motion.div>
           )}
@@ -314,7 +314,7 @@ export default function MyDomainsPage() {
                   </motion.button>
                 </div>
 
-                {isConfirmed && (
+                {isConfirmed ? (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -324,7 +324,7 @@ export default function MyDomainsPage() {
                       ✅ Domain renewed successfully!
                     </p>
                   </motion.div>
-                )}
+                ) : null}
               </motion.div>
             </motion.div>
           )}
@@ -414,7 +414,7 @@ const DomainMetaCard = memo(function DomainMetaCard({
           >
             <ArrowRightLeft className="mx-auto h-4 w-4" />
           </motion.button>
-          {canRenew && (
+          {canRenew ? (
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -423,7 +423,7 @@ const DomainMetaCard = memo(function DomainMetaCard({
             >
               <RotateCw className="mx-auto h-4 w-4" />
             </motion.button>
-          )}
+          ) : null}
         </div>
       </div>
     </motion.div>

@@ -211,7 +211,7 @@ export default function SendTokensPage() {
         </motion.div>
 
         {/* Status Messages */}
-        {error && (
+        {error ? (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -220,9 +220,9 @@ export default function SendTokensPage() {
             <AlertCircle className="h-5 w-5 flex-shrink-0" />
             <span>{error}</span>
           </motion.div>
-        )}
+        ) : null}
 
-        {success && (
+        {success ? (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -231,7 +231,7 @@ export default function SendTokensPage() {
             <CheckCircle className="h-5 w-5 flex-shrink-0" />
             <span>{success}</span>
           </motion.div>
-        )}
+        ) : null}
 
         {/* Send Form */}
         <motion.div
@@ -247,7 +247,7 @@ export default function SendTokensPage() {
                 <label className="block text-sm font-medium text-zinc-700">
                   Recipient
                 </label>
-                {recipientType !== 'unknown' && recipient && (
+                {recipientType !== 'unknown' && recipient ? (
                   <div className="flex items-center gap-1.5 text-xs font-medium">
                     {recipientType === 'domain' ? (
                       <>
@@ -261,7 +261,7 @@ export default function SendTokensPage() {
                       </>
                     )}
                   </div>
-                )}
+                ) : null}
               </div>
               <input
                 type="text"

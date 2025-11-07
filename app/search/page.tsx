@@ -333,7 +333,7 @@ function SearchContent() {
                   </div>
 
                   {/* Auction Status Info */}
-                  {auctionInfo && auctionInfo[0] && (
+                  {auctionInfo && auctionInfo[0] ? (
                     <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/20">
                       <h3 className="mb-2 text-sm font-semibold text-blue-900 dark:text-blue-400">
                         Auction Status
@@ -343,32 +343,33 @@ function SearchContent() {
                           <span>Phase:</span>
                           <span className="font-semibold capitalize">{auctionInfo[7].replace('_', ' ')}</span>
                         </div>
-                        {auctionInfo[6] > 0 && (
+                        {auctionInfo[6] > 0 ? (
                           <div className="flex justify-between">
                             <span>Time Remaining:</span>
                             <span className="font-semibold">
                               {Math.floor(Number(auctionInfo[6]) / 3600)}h {Math.floor((Number(auctionInfo[6]) % 3600) / 60)}m
                             </span>
                           </div>
-                        )}
-                        {auctionInfo[5] > 0 && (
+                        ) : null}
+                        {auctionInfo[5] > 0 ? (
                           <div className="flex justify-between">
                             <span>Current Highest Bid:</span>
                             <span className="font-semibold">{formatETH(auctionInfo[5])} ETH</span>
                           </div>
-                        )}
-                        {address && hasRevealed && (
+                        ) : null}
+                        {address && hasRevealed ? (
                           <div className="mt-2 pt-2 border-t border-blue-300 dark:border-blue-800 flex items-center gap-2 text-green-700 dark:text-green-400">
                             <CheckCircle className="h-4 w-4" />
                             <span>You have revealed your bid</span>
                           </div>
-                        )}
+                        ) : null}
                       </div>
                     </div>
-                  )}
+                  ) : null}
 
                   {/* Refund/Withdrawal Section */}
-                  {address && refundableAmount && Number(refundableAmount) > 0 && (
+                  {address && refundableAmount && Number(formatETH(refundableAmount)) > 0 ? 
+                  (
                     <>
                       {auctionInfo && auctionInfo[1] ? (
                         // Auction is finalized - show withdraw button
@@ -392,7 +393,7 @@ function SearchContent() {
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={withdrawFunds}
-                              disabled={isPending || isConfirming}
+                              disabled={isPending || isConfirming || isConfirmed}
                               className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-2 text-sm font-semibold text-white hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 transition-all"
                             >
                               {isPending || isConfirming ? (
@@ -424,7 +425,7 @@ function SearchContent() {
                         </div>
                       )}
                     </>
-                  )}
+                  ) : null}
 
                   {/* Auctionable Status Warning */}
                   {isAvailable && !isAuctionable && (
@@ -500,7 +501,7 @@ function SearchContent() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={startAuction}
-                            disabled={isPending || isConfirming}
+                            disabled={isPending || isConfirming || isConfirmed}
                             className="w-full rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 text-lg font-semibold text-white hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 transition-all"
                           >
                             {isPending || isConfirming ? (
@@ -638,7 +639,7 @@ function SearchContent() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={commitBid}
-                            disabled={!bidAmount || isPending || isConfirming}
+                            disabled={!bidAmount || isPending || isConfirming || isConfirmed}
                             className="w-full rounded-xl bg-gradient-to-r from-purple-500 to-blue-600 px-6 py-4 text-lg font-semibold text-white hover:from-purple-600 hover:to-blue-700 disabled:opacity-50 transition-all"
                           >
                             {isPending || isConfirming ? (
@@ -784,7 +785,7 @@ function SearchContent() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={revealBid}
-                            disabled={!revealBidAmount || !revealSecret || isPending || isConfirming}
+                            disabled={!revealBidAmount || !revealSecret || isPending || isConfirming || isConfirmed}
                             className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-red-600 px-6 py-4 text-lg font-semibold text-white hover:from-orange-600 hover:to-red-700 disabled:opacity-50 transition-all"
                           >
                             {isPending || isConfirming ? (
@@ -841,7 +842,7 @@ function SearchContent() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={finalizeAuction}
-                            disabled={isPending || isConfirming}
+                            disabled={isPending || isConfirming || isConfirmed}
                             className="w-full rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4 text-lg font-semibold text-white hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 transition-all"
                           >
                             {isPending || isConfirming ? (
