@@ -1,12 +1,14 @@
 'use client'
 
-import { useState, useCallback, memo, useEffect } from 'react'
+import { useState, useCallback, memo, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { CONTRACT_ADDRESS, NNS_ABI } from '@/lib/contract'
 import { DomainCard } from '@/components/DomainCard'
-import { Loader2, Wallet, ArrowRightLeft, RotateCw, Send } from 'lucide-react'
+import { Loader2, Wallet, ArrowRightLeft, RotateCw, Send, Globe, User } from 'lucide-react'
 import { parseEther, isAddress } from 'viem'
+
+type RecipientType = 'unknown' | 'domain' | 'address'
 
 export default function MyDomainsPage() {
   const { address, isConnected } = useAccount()
@@ -15,9 +17,46 @@ export default function MyDomainsPage() {
   const [showTransferModal, setShowTransferModal] = useState(false)
   const [showRenewModal, setShowRenewModal] = useState(false)
   const [renewalFee, setRenewalFee] = useState('')
+  const [transferError, setTransferError] = useState('')
 
   const { writeContract, data: hash, isPending } = useWriteContract()
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash })
+
+  // Detect recipient type (domain or address)
+  const recipientType: RecipientType = useMemo(() => {
+    if (!transferAddress) return 'unknown'
+    
+    const trimmed = transferAddress.trim()
+    
+    // Check if it's a domain name (ends with .ntu)
+    if (trimmed.toLowerCase().endsWith('.ntu')) {
+      return 'domain'
+    }
+    
+    // Check if it's an address (0x + 40 hex chars)
+    const addressRegex = /^0x[a-fA-F0-9]{40}$/
+    if (addressRegex.test(trimmed)) {
+      return 'address'
+    }
+    
+    // Check if it's 40 hex chars without 0x prefix
+    if (/^[a-fA-F0-9]{40}$/.test(trimmed)) {
+      return 'address'
+    }
+    
+    return 'unknown'
+  }, [transferAddress])
+
+  // Resolve domain to address if input is a domain
+  const { data: resolvedAddress, isLoading: isResolving } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: NNS_ABI,
+    functionName: 'resolve',
+    args: recipientType === 'domain' ? [transferAddress.trim()] : undefined,
+    query: {
+      enabled: recipientType === 'domain' && transferAddress.trim().length > 0
+    }
+  })
 
   // Get user's domains
   const { data: userDomains, isLoading: isLoadingDomains, refetch } = useReadContract({
@@ -42,15 +81,55 @@ export default function MyDomainsPage() {
   })
 
   const handleTransfer = useCallback(async () => {
-    if (!selectedDomain || !transferAddress || !isAddress(transferAddress)) return
+    setTransferError('')
+    
+    if (!selectedDomain || !transferAddress.trim()) {
+      setTransferError('Please enter a recipient')
+      return
+    }
+
+    if (recipientType === 'unknown') {
+      setTransferError('Invalid recipient. Must be a .ntu domain or Ethereum address')
+      return
+    }
+
+    let finalAddress: string
+
+    // If input is a domain, use the resolved address
+    if (recipientType === 'domain') {
+      if (isResolving) {
+        setTransferError('Resolving domain...')
+        return
+      }
+      
+      if (!resolvedAddress || resolvedAddress === '0x0000000000000000000000000000000000000000') {
+        setTransferError('Domain not registered or has no owner')
+        return
+      }
+      
+      finalAddress = resolvedAddress
+    } else {
+      // It's an address, validate and use it
+      let addrToValidate = transferAddress.trim()
+      if (!addrToValidate.startsWith('0x')) {
+        addrToValidate = '0x' + addrToValidate
+      }
+      
+      if (!isAddress(addrToValidate)) {
+        setTransferError('Invalid Ethereum address')
+        return
+      }
+      
+      finalAddress = addrToValidate
+    }
     
     writeContract({
       address: CONTRACT_ADDRESS,
       abi: NNS_ABI,
       functionName: 'transferDomain',
-      args: [selectedDomain, transferAddress as `0x${string}`]
+      args: [selectedDomain, finalAddress as `0x${string}`]
     })
-  }, [selectedDomain, transferAddress, writeContract])
+  }, [selectedDomain, transferAddress, recipientType, resolvedAddress, isResolving, writeContract])
 
   const handleRenew = useCallback(async () => {
     if (!selectedDomain || !renewalFee) return
@@ -68,6 +147,7 @@ export default function MyDomainsPage() {
     setSelectedDomain(domain)
     setShowTransferModal(true)
     setTransferAddress('')
+    setTransferError('')
   }, [])
 
   const openRenewModal = useCallback((domain: string, lastBidAmount: bigint) => {
@@ -192,17 +272,70 @@ export default function MyDomainsPage() {
                 </div>
 
                 <div className="mb-6">
-                  <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Recipient Address
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                      Recipient
+                    </label>
+                    {recipientType !== 'unknown' && transferAddress ? (
+                      <div className="flex items-center gap-1.5 text-xs font-medium">
+                        {recipientType === 'domain' ? (
+                          <>
+                            <Globe className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+                            <span className="text-purple-600 dark:text-purple-400">Domain Name</span>
+                          </>
+                        ) : (
+                          <>
+                            <User className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                            <span className="text-blue-600 dark:text-blue-400">Address</span>
+                          </>
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
                   <input
                     type="text"
                     value={transferAddress}
-                    onChange={(e) => setTransferAddress(e.target.value)}
-                    placeholder="0x..."
-                    className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+                    onChange={(e) => {
+                      setTransferAddress(e.target.value)
+                      setTransferError('')
+                    }}
+                    placeholder="alice.ntu or 0x..."
+                    className={`w-full rounded-xl border ${
+                      transferAddress && recipientType === 'unknown'
+                        ? 'border-red-300 focus:border-red-500 focus:ring-red-500/10 dark:border-red-700'
+                        : recipientType === 'domain'
+                        ? 'border-purple-300 focus:border-purple-500 focus:ring-purple-500/10 dark:border-purple-700'
+                        : recipientType === 'address'
+                        ? 'border-blue-300 focus:border-blue-500 focus:ring-blue-500/10 dark:border-blue-700'
+                        : 'border-zinc-300 focus:border-blue-500 focus:ring-blue-500/10 dark:border-zinc-700'
+                    } bg-white px-4 py-3 text-zinc-900 focus:outline-none focus:ring-4 dark:bg-zinc-800 dark:text-zinc-50 font-mono text-sm`}
                   />
+                  {recipientType === 'domain' && resolvedAddress && resolvedAddress !== '0x0000000000000000000000000000000000000000' ? (
+                    <motion.p 
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-2 text-xs text-green-600 dark:text-green-400 flex items-center gap-1"
+                    >
+                      <User className="h-3 w-3" />
+                      Resolves to: {resolvedAddress.slice(0, 6)}...{resolvedAddress.slice(-4)}
+                    </motion.p>
+                  ) : null}
+                  <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                    Enter a .ntu domain name or Ethereum address
+                  </p>
                 </div>
+
+                {transferError ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-4 rounded-xl bg-red-50 p-3 dark:bg-red-950/20"
+                  >
+                    <p className="text-sm text-red-800 dark:text-red-400">
+                      ❌ {transferError}
+                    </p>
+                  </motion.div>
+                ) : null}
 
                 <div className="flex gap-3">
                   <motion.button
@@ -217,13 +350,18 @@ export default function MyDomainsPage() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleTransfer}
-                    disabled={!transferAddress || !isAddress(transferAddress) || isPending || isConfirming}
+                    disabled={!transferAddress || recipientType === 'unknown' || isPending || isConfirming || isResolving}
                     className="flex-1 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-3 text-sm font-semibold text-white hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 transition-all"
                   >
                     {isPending || isConfirming ? (
                       <span className="flex items-center justify-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
                         Processing...
+                      </span>
+                    ) : isResolving ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Resolving...
                       </span>
                     ) : (
                       'Transfer'
@@ -242,6 +380,18 @@ export default function MyDomainsPage() {
                     </p>
                   </motion.div>
                 ) : null}
+
+                {/* Info about transfer capabilities */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-950/20"
+                >
+                  <p className="text-xs text-blue-800 dark:text-blue-400">
+                    <strong>💡 Tip:</strong> You can transfer to another domain name! The domain will be transferred to the owner of that domain automatically.
+                  </p>
+                </motion.div>
               </motion.div>
             </motion.div>
           )}
