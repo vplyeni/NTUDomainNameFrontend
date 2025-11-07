@@ -19,8 +19,27 @@ export default function MyDomainsPage() {
   const [renewalFee, setRenewalFee] = useState('')
   const [transferError, setTransferError] = useState('')
 
-  const { writeContract, data: hash, isPending } = useWriteContract()
+  const { writeContract, data: hash, isPending, reset: resetTransaction } = useWriteContract()
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash })
+
+  // Cleanup function to reset modal state
+  const handleCloseTransferModal = useCallback(() => {
+    setShowTransferModal(false)
+    // Reset state after modal animation completes
+    setTimeout(() => {
+      setTransferAddress('')
+      setTransferError('')
+      resetTransaction()
+    }, 300)
+  }, [resetTransaction])
+
+  const handleCloseRenewModal = useCallback(() => {
+    setShowRenewModal(false)
+    // Reset state after modal animation completes
+    setTimeout(() => {
+      resetTransaction()
+    }, 300)
+  }, [resetTransaction])
 
   // Detect recipient type (domain or address)
   const recipientType: RecipientType = useMemo(() => {
@@ -248,7 +267,7 @@ export default function MyDomainsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-              onClick={() => setShowTransferModal(false)}
+              onClick={() => (isConfirmed || (!isPending && !isConfirming)) && handleCloseTransferModal()}
             >
               <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
@@ -300,6 +319,7 @@ export default function MyDomainsPage() {
                       setTransferError('')
                     }}
                     placeholder="alice.ntu or 0x..."
+                    disabled={isPending || isConfirming || isConfirmed}
                     className={`w-full rounded-xl border ${
                       transferAddress && recipientType === 'unknown'
                         ? 'border-red-300 focus:border-red-500 focus:ring-red-500/10 dark:border-red-700'
@@ -308,7 +328,7 @@ export default function MyDomainsPage() {
                         : recipientType === 'address'
                         ? 'border-blue-300 focus:border-blue-500 focus:ring-blue-500/10 dark:border-blue-700'
                         : 'border-zinc-300 focus:border-blue-500 focus:ring-blue-500/10 dark:border-zinc-700'
-                    } bg-white px-4 py-3 text-zinc-900 focus:outline-none focus:ring-4 dark:bg-zinc-800 dark:text-zinc-50 font-mono text-sm`}
+                    } bg-white px-4 py-3 text-zinc-900 focus:outline-none focus:ring-4 dark:bg-zinc-800 dark:text-zinc-50 font-mono text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-zinc-50 dark:disabled:bg-zinc-900`}
                   />
                   {recipientType === 'domain' && resolvedAddress && resolvedAddress !== '0x0000000000000000000000000000000000000000' ? (
                     <motion.p 
@@ -338,35 +358,49 @@ export default function MyDomainsPage() {
                 ) : null}
 
                 <div className="flex gap-3">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setShowTransferModal(false)}
-                    className="flex-1 rounded-xl border border-zinc-300 px-4 py-3 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 transition-colors"
-                  >
-                    Cancel
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleTransfer}
-                    disabled={!transferAddress || recipientType === 'unknown' || isPending || isConfirming || isResolving}
-                    className="flex-1 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-3 text-sm font-semibold text-white hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 transition-all"
-                  >
-                    {isPending || isConfirming ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Processing...
-                      </span>
-                    ) : isResolving ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Resolving...
-                      </span>
-                    ) : (
-                      'Transfer'
-                    )}
-                  </motion.button>
+                  {!isConfirmed ? (
+                    <>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => !isPending && !isConfirming && handleCloseTransferModal()}
+                        disabled={isPending || isConfirming}
+                        className="flex-1 rounded-xl border border-zinc-300 px-4 py-3 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:disabled:hover:bg-transparent"
+                      >
+                        Cancel
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleTransfer}
+                        disabled={!transferAddress || recipientType === 'unknown' || isPending || isConfirming || isResolving}
+                        className="flex-1 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-3 text-sm font-semibold text-white hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 transition-all"
+                      >
+                        {isPending || isConfirming ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Processing...
+                          </span>
+                        ) : isResolving ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Resolving...
+                          </span>
+                        ) : (
+                          'Transfer'
+                        )}
+                      </motion.button>
+                    </>
+                  ) : (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleCloseTransferModal}
+                      className="w-full rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:from-green-600 hover:to-emerald-700 transition-all"
+                    >
+                      Close
+                    </motion.button>
+                  )}
                 </div>
 
                 {isConfirmed ? (
@@ -405,7 +439,7 @@ export default function MyDomainsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-              onClick={() => setShowRenewModal(false)}
+              onClick={() => (isConfirmed || (!isPending && !isConfirming)) && handleCloseRenewModal()}
             >
               <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
@@ -438,30 +472,44 @@ export default function MyDomainsPage() {
                 </div>
 
                 <div className="flex gap-3">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setShowRenewModal(false)}
-                    className="flex-1 rounded-xl border border-zinc-300 px-4 py-3 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 transition-colors"
-                  >
-                    Cancel
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleRenew}
-                    disabled={isPending || isConfirming}
-                    className="flex-1 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 transition-all"
-                  >
-                    {isPending || isConfirming ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Processing...
-                      </span>
-                    ) : (
-                      'Renew'
-                    )}
-                  </motion.button>
+                  {!isConfirmed ? (
+                    <>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => !isPending && !isConfirming && handleCloseRenewModal()}
+                        disabled={isPending || isConfirming}
+                        className="flex-1 rounded-xl border border-zinc-300 px-4 py-3 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:disabled:hover:bg-transparent"
+                      >
+                        Cancel
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleRenew}
+                        disabled={isPending || isConfirming}
+                        className="flex-1 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 transition-all"
+                      >
+                        {isPending || isConfirming ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Processing...
+                          </span>
+                        ) : (
+                          'Renew'
+                        )}
+                      </motion.button>
+                    </>
+                  ) : (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleCloseRenewModal}
+                      className="w-full rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:from-green-600 hover:to-emerald-700 transition-all"
+                    >
+                      Close
+                    </motion.button>
+                  )}
                 </div>
 
                 {isConfirmed ? (
