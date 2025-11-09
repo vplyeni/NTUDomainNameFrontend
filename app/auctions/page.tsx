@@ -324,7 +324,7 @@ const AuctionCard = memo(function AuctionCard({
             </div>
           ) : null}
           
-          {address && refundableAmount && (() => {
+          {address && refundableAmount ? (() => {
             // Calculate actual refundable amount
             const actualRefundable = !finalized && address === highestBidder && highestBid > 0
               ? BigInt(refundableAmount.toString()) - BigInt(highestBid.toString())
@@ -339,7 +339,7 @@ const AuctionCard = memo(function AuctionCard({
                 <span>Refund available: {formatETH(actualRefundable)} ETH</span>
               </div>
             );
-          })()}
+          })(): null}
         </div>
         {/* Action Button */}
         <Link href={`/search?domain=${encodeURIComponent(domain)}&phase=${phase}`}>

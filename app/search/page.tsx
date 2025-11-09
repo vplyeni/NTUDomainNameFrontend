@@ -429,7 +429,7 @@ function SearchContent() {
                   ) : null}
 
                   {/* Refund/Withdrawal Section */}
-                  {address && refundableAmount && (() => {
+                  {address && refundableAmount? (() => {
                     // Calculate actual refundable amount
                     // For finalized auctions, contract already deducted winning bid from refundableAmount
                     // For non-finalized, we need to subtract it manually for display
@@ -494,7 +494,7 @@ function SearchContent() {
                         </div>
                       </div>
                     );
-                  })()}
+                  })():null}
 
                   {/* Auctionable Status Warning */}
                   {isAvailable && !isAuctionable && (
