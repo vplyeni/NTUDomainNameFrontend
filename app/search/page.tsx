@@ -65,6 +65,17 @@ function SearchContent() {
     }
   })
 
+  // Get domain owner (resolve)
+  const { data: domainOwner } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: NNS_ABI,
+    functionName: 'resolve',
+    args: searchDomain ? [searchDomain] : undefined,
+    query: {
+      enabled: !!searchDomain && searchDomain.endsWith('.ntu') && !isAvailable
+    }
+  })
+
   // Get auction info
   const { data: auctionInfo, refetch: refetchAuctionInfo } = useReadContract({
     address: CONTRACT_ADDRESS,
@@ -331,6 +342,56 @@ function SearchContent() {
                       </div>
                     )}
                   </div>
+
+                  {/* Owner Information - Show when domain is not available */}
+                  {!isAvailable && domainOwner && domainOwner !== '0x0000000000000000000000000000000000000000' && (
+                    <div className="mb-6 rounded-xl border border-zinc-200 bg-zinc-50 p-4 sm:p-6 dark:border-zinc-700 dark:bg-zinc-800/50">
+                      <h3 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                        <Info className="h-4 w-4" />
+                        Domain Owner Information
+                      </h3>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                          <span className="text-zinc-600 dark:text-zinc-400 font-medium">Owner Address:</span>
+                          <code className="px-2 py-1 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 font-mono text-xs break-all">
+                            {domainOwner}
+                          </code>
+                        </div>
+                        {domainMeta && Array.isArray(domainMeta) && domainMeta[1] > 0 && (
+                          <>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                              <span className="text-zinc-600 dark:text-zinc-400 font-medium">Registration Date:</span>
+                              <span className="text-zinc-900 dark:text-zinc-100">
+                                {new Date(Number(domainMeta[0]) * 1000).toLocaleDateString('en-US', { 
+                                  year: 'numeric', 
+                                  month: 'long', 
+                                  day: 'numeric' 
+                                })}
+                              </span>
+                            </div>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                              <span className="text-zinc-600 dark:text-zinc-400 font-medium">Expiry Date:</span>
+                              <span className="text-zinc-900 dark:text-zinc-100">
+                                {new Date(Number(domainMeta[1]) * 1000).toLocaleDateString('en-US', { 
+                                  year: 'numeric', 
+                                  month: 'long', 
+                                  day: 'numeric' 
+                                })}
+                              </span>
+                            </div>
+                            {domainMeta[3] > 0 && (
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                                <span className="text-zinc-600 dark:text-zinc-400 font-medium">Registration Price:</span>
+                                <span className="text-zinc-900 dark:text-zinc-100 font-semibold">
+                                  {formatETH(domainMeta[3])} ETH
+                                </span>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Auction Status Info */}
                   {auctionInfo && auctionInfo[0] ? (
