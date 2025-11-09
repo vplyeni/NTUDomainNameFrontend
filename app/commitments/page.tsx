@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { CONTRACT_ADDRESS, NNS_ABI } from '@/lib/contract'
@@ -9,7 +9,12 @@ import { getAllBids, removeBid, type BidData } from '@/lib/commitmentUtils'
 
 export default function CommitmentsPage() {
   const { address, isConnected } = useAccount()
-  const [localBids, setLocalBids] = useState<BidData[]>(getAllBids())
+  const [localBids, setLocalBids] = useState<BidData[]>([])
+
+  // Load bids from localStorage only on client side
+  useEffect(() => {
+    setLocalBids(getAllBids())
+  }, [])
 
   const { writeContract, data: hash, isPending, isError, error } = useWriteContract()
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash })
