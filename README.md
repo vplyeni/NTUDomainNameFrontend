@@ -109,13 +109,13 @@ The application includes the following pages:
 - **`/`** - Landing page with domain search and feature showcase
 - **`/search`** - Advanced domain search interface
 - **`/auctions`** - Browse and participate in domain auctions
-- **`/commitments`** - ✨ **NEW!** Manage all your commitments (view, cancel, track)
+- **`/commitments`** - Manage all your commitments (view, cancel, track)
 - **`/my-domains`** - Manage your owned domains
 - **`/owner`** - Owner/admin dashboard
 - **`/send-tokens`** - Token transfer functionality
 - **`/debug`** - Development debugging tools
 
-## 🎯 Commitment Management (New Feature!)
+## 🎯 Commitment Management
 
 The `/commitments` page provides a comprehensive dashboard for managing all your auction commitments:
 
@@ -190,7 +190,7 @@ frontend/
 │   ├── providers.tsx      # React Query & Web3 providers
 │   ├── globals.css        # Global styles
 │   ├── auctions/          # Auctions page
-│   ├── commitments/       # ✨ Commitment management page
+│   ├── commitments/       # Commitment management page
 │   ├── my-domains/        # User domains management
 │   ├── owner/             # Owner dashboard
 │   ├── search/            # Domain search page
@@ -201,7 +201,7 @@ frontend/
 │   ├── SearchBar.tsx      # Domain search component
 │   └── DomainCard.tsx     # Domain display card
 ├── lib/                   # Utility functions and configurations
-│   └── contract.ts        # Updated with new commitment functions
+│   └── contract.ts        # Contract configuration and utilities
 ├── public/                # Static assets
 ├── next.config.ts         # Next.js configuration
 ├── tailwind.config.ts     # Tailwind CSS configuration

@@ -338,10 +338,6 @@ export default function Home() {
                     <Shield className="h-4 w-4 mt-0.5 flex-shrink-0" />
                     <span>Cancel anytime before reveal</span>
                   </div>
-                  <div className="flex items-start gap-2 text-xs text-indigo-600 dark:text-indigo-400 font-medium">
-                    <Sparkles className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                    <span>NEW: Check the Commitments page!</span>
-                  </div>
                 </div>
               </div>
 
@@ -367,7 +363,7 @@ export default function Home() {
             </motion.div>
           </motion.div>
 
-          {/* Let's Understand the Architecture - NEW SECTION */}
+          {/* Let's Understand the Architecture */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -1094,7 +1090,6 @@ export default function Home() {
                       <code className="text-xs text-indigo-600 dark:text-indigo-400 font-mono">
                         struct Commitment
                       </code>
-                      <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/40 px-2 py-0.5 rounded">NEW</span>
                     </div>
                     <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">
                       Flexible commitment system - users can have multiple commitments:
@@ -1223,13 +1218,12 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* Function 3.5: cancelCommitment - NEW */}
+              {/* Function 3.5: cancelCommitment */}
               <div className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/50 to-blue-50/50 dark:border-indigo-800 dark:from-indigo-950/20 dark:to-blue-950/20 p-8">
                 <div className="flex items-center gap-2 mb-4">
                   <code className="text-sm font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/40 px-3 py-2 rounded-lg block overflow-x-auto flex-1">
                     function cancelCommitment(bytes32 commitment) external
                   </code>
-                  <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/40 px-3 py-1 rounded-full whitespace-nowrap">NEW ✨</span>
                 </div>
                 <h5 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">Purpose & Freedom</h5>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4 leading-relaxed">
