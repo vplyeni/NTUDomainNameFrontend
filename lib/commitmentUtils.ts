@@ -79,24 +79,35 @@ export function makeCommitment(
 }
 
 /**
+ * Get storage key for a specific address
+ */
+function getStorageKey(address?: string): string {
+  if (!address) return 'nns_bids' // Fallback for backwards compatibility
+  return `nns_bids_${address.toLowerCase()}`
+}
+
+/**
  * Store a new bid in localStorage
  * Supports multiple bids per domain - stores all of them
+ * Address-based storage: each address has their own bid list
  */
-export function storeBid(bidData: BidData): void {
-  const stored = localStorage.getItem('nns_bids')
+export function storeBid(bidData: BidData, address?: string): void {
+  const key = getStorageKey(address)
+  const stored = localStorage.getItem(key)
   const bids: BidData[] = stored ? JSON.parse(stored) : []
   
   // Add new bid
   bids.push(bidData)
   
-  localStorage.setItem('nns_bids', JSON.stringify(bids))
+  localStorage.setItem(key, JSON.stringify(bids))
 }
 
 /**
- * Get all bids for a specific domain
+ * Get all bids for a specific domain (for current address)
  */
-export function getBidsForDomain(domain: string): BidData[] {
-  const stored = localStorage.getItem('nns_bids')
+export function getBidsForDomain(domain: string, address?: string): BidData[] {
+  const key = getStorageKey(address)
+  const stored = localStorage.getItem(key)
   if (!stored) return []
   
   const bids: BidData[] = JSON.parse(stored)
@@ -104,11 +115,11 @@ export function getBidsForDomain(domain: string): BidData[] {
 }
 
 /**
- * Get the highest bid for a specific domain
+ * Get the highest bid for a specific domain (for current address)
  * Returns the bid with the highest bidAmount
  */
-export function getHighestBid(domain: string): BidData | null {
-  const bids = getBidsForDomain(domain)
+export function getHighestBid(domain: string, address?: string): BidData | null {
+  const bids = getBidsForDomain(domain, address)
   if (bids.length === 0) return null
   
   return bids.reduce((highest, current) => {
@@ -119,30 +130,33 @@ export function getHighestBid(domain: string): BidData | null {
 }
 
 /**
- * Get all stored bids (for all domains)
+ * Get all stored bids (for current address, all domains)
  */
-export function getAllBids(): BidData[] {
-  const stored = localStorage.getItem('nns_bids')
+export function getAllBids(address?: string): BidData[] {
+  const key = getStorageKey(address)
+  const stored = localStorage.getItem(key)
   return stored ? JSON.parse(stored) : []
 }
 
 /**
- * Clear all bids from storage
+ * Clear all bids from storage (for current address)
  */
-export function clearAllBids(): void {
-  localStorage.removeItem('nns_bids')
+export function clearAllBids(address?: string): void {
+  const key = getStorageKey(address)
+  localStorage.removeItem(key)
 }
 
 /**
- * Remove a specific bid
+ * Remove a specific bid (for current address)
  */
-export function removeBid(commitment: string): void {
-  const stored = localStorage.getItem('nns_bids')
+export function removeBid(commitment: string, address?: string): void {
+  const key = getStorageKey(address)
+  const stored = localStorage.getItem(key)
   if (!stored) return
   
   const bids: BidData[] = JSON.parse(stored)
   const filtered = bids.filter(bid => bid.commitment !== commitment)
   
-  localStorage.setItem('nns_bids', JSON.stringify(filtered))
+  localStorage.setItem(key, JSON.stringify(filtered))
 }
 

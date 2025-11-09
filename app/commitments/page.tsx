@@ -10,11 +10,14 @@ import { getAllBids, removeBid, type BidData } from '@/lib/commitmentUtils'
 export default function CommitmentsPage() {
   const { address, isConnected } = useAccount()
   const [localBids, setLocalBids] = useState<BidData[]>([])
+  const [processingCommitment, setProcessingCommitment] = useState<string | null>(null)
 
   // Load bids from localStorage only on client side
   useEffect(() => {
-    setLocalBids(getAllBids())
-  }, [])
+    if (address) {
+      setLocalBids(getAllBids(address))
+    }
+  }, [address])
 
   const { writeContract, data: hash, isPending, isError, error } = useWriteContract()
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash })
@@ -41,7 +44,10 @@ export default function CommitmentsPage() {
   }, [])
 
   const cancelCommitment = useCallback(async (commitmentHash: string) => {
-    if (!commitmentHash) return
+    if (!commitmentHash || !address) return
+    
+    // Set this commitment as being processed
+    setProcessingCommitment(commitmentHash)
     
     // Find the local bid to remove from localStorage after cancellation
     const bidToRemove = localBids.find(bid => bid.commitment === commitmentHash)
@@ -55,10 +61,20 @@ export default function CommitmentsPage() {
 
     // Remove from localStorage after transaction succeeds
     if (bidToRemove) {
-      removeBid(commitmentHash)
-      setLocalBids(getAllBids())
+      removeBid(commitmentHash, address)
+      setLocalBids(getAllBids(address))
     }
-  }, [writeContract, localBids])
+  }, [writeContract, localBids, address])
+
+  // Clear processing state when transaction completes
+  useEffect(() => {
+    if (isConfirmed || isError) {
+      setProcessingCommitment(null)
+      if (isConfirmed) {
+        refetch() // Refresh the commitments list
+      }
+    }
+  }, [isConfirmed, isError, refetch])
 
   const commitments = unrevealedCommitments?.[0] || []
   const values = unrevealedCommitments?.[1] || []
@@ -212,10 +228,10 @@ export default function CommitmentsPage() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => cancelCommitment(commitment.hash)}
-                    disabled={isPending || isConfirming}
+                    disabled={processingCommitment === commitment.hash}
                     className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-pink-600 px-4 py-3 font-semibold text-white hover:from-red-600 hover:to-pink-700 disabled:opacity-50 transition-all lg:w-auto"
                   >
-                    {isPending || isConfirming ? (
+                    {processingCommitment === commitment.hash ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
                         Cancelling...

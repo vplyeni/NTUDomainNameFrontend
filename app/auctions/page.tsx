@@ -327,7 +327,13 @@ const AuctionCard = memo(function AuctionCard({
           {address && refundableAmount && Number(formatETH(refundableAmount)) > 0 ? (
             <div className="mt-2 flex items-center gap-2 text-xs text-blue-700 dark:text-blue-400">
               <AlertCircle className="h-3 w-3" />
-              <span>Refund available: {formatETH(refundableAmount)} ETH</span>
+              <span>Refund available: {
+                // If auction NOT finalized and user is winner, show refundable - highestBid
+                // (contract deducts winning bid only after finalization)
+                !finalized && address === highestBidder && highestBid > 0
+                  ? formatETH(BigInt(refundableAmount.toString()) - BigInt(highestBid.toString()))
+                  : formatETH(refundableAmount)
+              } ETH</span>
             </div>
           ) : null}
         </div>

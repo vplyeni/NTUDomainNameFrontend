@@ -126,12 +126,12 @@ function SearchContent() {
     
     if (domain) {
       setSearchDomain(domain)
-      // Load existing bids for this domain
-      const bids = getBidsForDomain(domain)
+      // Load existing bids for this domain (address-specific)
+      const bids = getBidsForDomain(domain, address)
       setCurrentBids(bids)
       
       // Auto-fill reveal form with highest bid if available
-      const highestBid = getHighestBid(domain)
+      const highestBid = getHighestBid(domain, address)
       if (highestBid) {
         setRevealBidAmount(highestBid.bidAmount)
         setRevealSecretText(highestBid.secretText || '')
@@ -155,7 +155,7 @@ function SearchContent() {
         setStep('search')
       }
     }
-  }, [searchParams])
+  }, [searchParams, address])
 
   const handleSearch = useCallback((domain: string) => {
     setSearchDomain(domain)
@@ -163,12 +163,12 @@ function SearchContent() {
     refetchAvailability()
     refetchMeta()
     
-    // Load existing bids for this domain
-    const bids = getBidsForDomain(domain)
+    // Load existing bids for this domain (address-specific)
+    const bids = getBidsForDomain(domain, address)
     setCurrentBids(bids)
     
     // Auto-fill reveal form with highest bid if available
-    const highestBid = getHighestBid(domain)
+    const highestBid = getHighestBid(domain, address)
     if (highestBid) {
       setRevealBidAmount(highestBid.bidAmount)
       setRevealSecretText(highestBid.secretText || '')
@@ -179,7 +179,7 @@ function SearchContent() {
     const randomText = generateSecretText()
     setSecretText(randomText)
     setSecretHash(hashSecretText(randomText))
-  }, [refetchAvailability, refetchMeta])
+  }, [refetchAvailability, refetchMeta, address])
 
   const startAuction = useCallback(async () => {
     if (!searchDomain) return
@@ -206,7 +206,7 @@ function SearchContent() {
       address
     )
     
-    // Save bid data to localStorage (including original text)
+    // Save bid data to localStorage (address-specific)
     const bidData: BidData = {
       domain: searchDomain,
       bidAmount,
@@ -215,10 +215,10 @@ function SearchContent() {
       commitment,
       timestamp: Date.now()
     }
-    storeBid(bidData)
+    storeBid(bidData, address)
     
     // Update current bids display
-    const updatedBids = getBidsForDomain(searchDomain)
+    const updatedBids = getBidsForDomain(searchDomain, address)
     setCurrentBids(updatedBids)
     
     // Generate new secret for next bid
@@ -478,7 +478,13 @@ function SearchContent() {
                                 Funds Pending Withdrawal
                               </h3>
                               <p className="text-sm text-blue-800 dark:text-blue-500">
-                                You have <strong>{formatETH(refundableAmount)} ETH</strong> that will be available for withdrawal once the auction is finalized.
+                                You have <strong>{
+                                  // If user is the winner, show refundable - highestBid
+                                  auctionInfo && auctionInfo[4] === address && auctionInfo[5] > 0
+                                    ? formatETH(BigInt(refundableAmount.toString()) - BigInt(auctionInfo[5].toString()))
+                                    : formatETH(refundableAmount)
+                                } ETH</strong> that will be available for withdrawal once the auction is finalized.
+                                {auctionInfo && auctionInfo[4] === address && ' (Winning bid will be deducted from your refund)'}
                                 {currentBids.length > 1 && ' (Multiple bids detected - excess funds will be refunded)'}
                               </p>
                             </div>
@@ -764,7 +770,7 @@ function SearchContent() {
                                 <div className="text-sm text-green-900 dark:text-green-300">
                                   <p className="font-semibold mb-1">✅ Auto-filled with Highest Bid</p>
                                   <p className="text-green-800 dark:text-green-400">
-                                    We've automatically filled in your <strong>highest bid</strong> ({getHighestBid(searchDomain)?.bidAmount} ETH) and its secret. You can reveal it now or manually edit if needed.
+                                    We've automatically filled in your <strong>highest bid</strong> ({getHighestBid(searchDomain, address)?.bidAmount} ETH) and its secret. You can reveal it now or manually edit if needed.
                                   </p>
                                 </div>
                               </div>
