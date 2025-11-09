@@ -30,6 +30,7 @@ const features = [
 
 export default function Home() {
   const [showUIGuide, setShowUIGuide] = useState(false)
+  const [showArchitecture, setShowArchitecture] = useState(false)
   const [showTechnical, setShowTechnical] = useState(false)
 
   return (
@@ -331,6 +332,639 @@ export default function Home() {
                   <span>Simple, human-readable transactions</span>
                 </div>
               </div>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Let's Understand the Architecture - NEW SECTION */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className="mb-16"
+          >
+            <button
+              onClick={() => setShowArchitecture(!showArchitecture)}
+              className="flex items-center justify-between w-full gap-3 mb-8 p-6 rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white">
+                  <BookOpen className="h-6 w-6" />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+                    Let's Understand the Architecture
+                  </h3>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+                    Visual system specification: commit-reveal mechanism & cryptographic privacy
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
+                {showArchitecture ? (
+                  <ChevronUp className="h-6 w-6 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors" />
+                ) : (
+                  <ChevronDown className="h-6 w-6 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors" />
+                )}
+              </div>
+            </button>
+
+            <motion.div
+              initial={false}
+              animate={{
+                height: showArchitecture ? 'auto' : 0,
+                opacity: showArchitecture ? 1 : 0
+              }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className="space-y-8 pb-4">
+                
+                {/* System Layers Architecture */}
+                <div className="rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 p-8">
+                  <h4 className="text-2xl font-bold text-emerald-900 dark:text-emerald-100 mb-6 flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-emerald-600 animate-pulse"></div>
+                    System Architecture Layers
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    {/* Layer 4 - Top */}
+                    <div className="relative">
+                      <div className="bg-white dark:bg-zinc-900 rounded-xl border-2 border-emerald-300 dark:border-emerald-700 p-6 shadow-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Layer 4: User Interface</span>
+                          <Globe className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <div className="grid grid-cols-4 gap-2 text-xs">
+                          <div className="bg-emerald-100 dark:bg-emerald-900/40 p-2 rounded text-center font-mono">Search</div>
+                          <div className="bg-emerald-100 dark:bg-emerald-900/40 p-2 rounded text-center font-mono">Auctions</div>
+                          <div className="bg-emerald-100 dark:bg-emerald-900/40 p-2 rounded text-center font-mono">My Domains</div>
+                          <div className="bg-emerald-100 dark:bg-emerald-900/40 p-2 rounded text-center font-mono">Owner Panel</div>
+                        </div>
+                      </div>
+                      <div className="flex justify-center">
+                        <div className="w-0.5 h-4 bg-gradient-to-b from-emerald-300 to-blue-300 dark:from-emerald-700 dark:to-blue-700"></div>
+                      </div>
+                    </div>
+
+                    {/* Layer 3 */}
+                    <div className="relative">
+                      <div className="bg-white dark:bg-zinc-900 rounded-xl border-2 border-blue-300 dark:border-blue-700 p-6 shadow-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Layer 3: Query & View Functions</span>
+                          <Eye className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          <div className="bg-blue-100 dark:bg-blue-900/40 p-2 rounded text-center font-mono">getAuctionInfo()</div>
+                          <div className="bg-blue-100 dark:bg-blue-900/40 p-2 rounded text-center font-mono">resolve()</div>
+                          <div className="bg-blue-100 dark:bg-blue-900/40 p-2 rounded text-center font-mono">searchAuctions()</div>
+                        </div>
+                      </div>
+                      <div className="flex justify-center">
+                        <div className="w-0.5 h-4 bg-gradient-to-b from-blue-300 to-purple-300 dark:from-blue-700 dark:to-purple-700"></div>
+                      </div>
+                    </div>
+
+                    {/* Layer 2 */}
+                    <div className="relative">
+                      <div className="bg-white dark:bg-zinc-900 rounded-xl border-2 border-purple-300 dark:border-purple-700 p-6 shadow-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">Layer 2: Auction Logic & State Management</span>
+                          <Zap className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <div className="bg-purple-100 dark:bg-purple-900/40 p-3 rounded text-center">
+                              <div className="text-xs font-bold text-purple-900 dark:text-purple-100">Auction State Machine</div>
+                              <div className="text-[10px] text-purple-700 dark:text-purple-300 mt-1">Commit → Reveal → Finalize</div>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="bg-purple-100 dark:bg-purple-900/40 p-3 rounded text-center">
+                              <div className="text-xs font-bold text-purple-900 dark:text-purple-100">Domain Registry</div>
+                              <div className="text-[10px] text-purple-700 dark:text-purple-300 mt-1">Ownership & Metadata</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex justify-center">
+                        <div className="w-0.5 h-4 bg-gradient-to-b from-purple-300 to-orange-300 dark:from-purple-700 dark:to-orange-700"></div>
+                      </div>
+                    </div>
+
+                    {/* Layer 1 */}
+                    <div className="relative">
+                      <div className="bg-white dark:bg-zinc-900 rounded-xl border-2 border-orange-300 dark:border-orange-700 p-6 shadow-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">Layer 1: Cryptographic Security</span>
+                          <Lock className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          <div className="bg-orange-100 dark:bg-orange-900/40 p-2 rounded text-center font-mono">keccak256</div>
+                          <div className="bg-orange-100 dark:bg-orange-900/40 p-2 rounded text-center font-mono">Commitment Store</div>
+                          <div className="bg-orange-100 dark:bg-orange-900/40 p-2 rounded text-center font-mono">Hash Validation</div>
+                        </div>
+                      </div>
+                      <div className="flex justify-center">
+                        <div className="w-0.5 h-4 bg-gradient-to-b from-orange-300 to-red-300 dark:from-orange-700 dark:to-red-700"></div>
+                      </div>
+                    </div>
+
+                    {/* Layer 0 - Bottom */}
+                    <div className="relative">
+                      <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-950/30 dark:to-pink-950/30 rounded-xl border-2 border-red-300 dark:border-red-700 p-6 shadow-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">Layer 0: Ethereum Blockchain</span>
+                          <Shield className="h-5 w-5 text-red-600 dark:text-red-400" />
+                        </div>
+                        <div className="text-center text-xs text-red-700 dark:text-red-300 font-mono">
+                          Immutable Storage • EVM Execution • Consensus Security
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Commitment Hash Calculation Flow */}
+                <div className="rounded-2xl border-2 border-blue-200 dark:border-blue-800 bg-white dark:bg-zinc-900 p-8">
+                  <h4 className="text-2xl font-bold text-blue-900 dark:text-blue-100 mb-6 flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-blue-600 animate-pulse"></div>
+                    Commitment Hash Calculation (keccak256)
+                  </h4>
+                  
+                  <div className="space-y-6">
+                    {/* Input Parameters */}
+                    <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/40 dark:to-cyan-950/40 rounded-xl p-6 border-2 border-blue-200 dark:border-blue-800">
+                      <div className="text-sm font-bold text-blue-900 dark:text-blue-100 mb-4 uppercase tracking-wide">Input Parameters</div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 border border-blue-200 dark:border-blue-700">
+                          <div className="text-xs text-blue-600 dark:text-blue-400 font-mono mb-1">string name</div>
+                          <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100">"alice.ntu"</div>
+                          <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Target domain</div>
+                        </div>
+                        <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 border border-blue-200 dark:border-blue-700">
+                          <div className="text-xs text-blue-600 dark:text-blue-400 font-mono mb-1">uint256 bidAmount</div>
+                          <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100">1.5 ETH</div>
+                          <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Your bid</div>
+                        </div>
+                        <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 border border-blue-200 dark:border-blue-700">
+                          <div className="text-xs text-blue-600 dark:text-blue-400 font-mono mb-1">bytes32 secret</div>
+                          <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100 font-mono">0x4f3a8b...</div>
+                          <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Random value (KEEP SECRET!)</div>
+                        </div>
+                        <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 border border-blue-200 dark:border-blue-700">
+                          <div className="text-xs text-blue-600 dark:text-blue-400 font-mono mb-1">address bidder</div>
+                          <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100 font-mono">0x742d...</div>
+                          <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Your wallet address</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Arrow down */}
+                    <div className="flex justify-center">
+                      <div className="flex flex-col items-center">
+                        <div className="text-2xl text-blue-500 dark:text-blue-400">↓</div>
+                        <div className="text-xs text-blue-600 dark:text-blue-400 font-mono">abi.encode()</div>
+                      </div>
+                    </div>
+
+                    {/* Encoding Step */}
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/40 dark:to-pink-950/40 rounded-xl p-6 border-2 border-purple-200 dark:border-purple-800">
+                      <div className="text-sm font-bold text-purple-900 dark:text-purple-100 mb-3 uppercase tracking-wide">ABI Encoding</div>
+                      <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 border border-purple-200 dark:border-purple-700 font-mono text-xs overflow-x-auto">
+                        <div className="text-purple-600 dark:text-purple-400">// All parameters concatenated into bytes</div>
+                        <div className="text-zinc-700 dark:text-zinc-300 mt-1">
+                          616c6963652e6e7475000000000000000000000000000000000000000000000000
+                          <br />
+                          00000000000000000000000000000000000000000000000014d1120d7b160000
+                          <br />
+                          4f3a8b7c2d1e9f0a5b6c3d8e1f2a0b9c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a
+                          <br />
+                          000000000000000000000000742d35cc6634c0532925a3b844bc9e7ddf3479f8
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Arrow down */}
+                    <div className="flex justify-center">
+                      <div className="flex flex-col items-center">
+                        <div className="text-2xl text-purple-500 dark:text-purple-400">↓</div>
+                        <div className="text-xs text-purple-600 dark:text-purple-400 font-mono">keccak256()</div>
+                      </div>
+                    </div>
+
+                    {/* Hash Output */}
+                    <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/40 dark:to-red-950/40 rounded-xl p-6 border-2 border-orange-200 dark:border-orange-800">
+                      <div className="text-sm font-bold text-orange-900 dark:text-orange-100 mb-3 uppercase tracking-wide flex items-center gap-2">
+                        <Lock className="h-4 w-4" />
+                        Commitment Hash (bytes32)
+                      </div>
+                      <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 border border-orange-200 dark:border-orange-700">
+                        <div className="font-mono text-sm text-orange-600 dark:text-orange-400 break-all">
+                          0x8f7e6d5c4b3a2910fedcba9876543210abcdef0123456789deadbeef87654321
+                        </div>
+                        <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          This is what gets submitted to the blockchain during commit phase
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Why This Matters Box */}
+                  <div className="mt-6 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20 rounded-xl p-6 border-2 border-yellow-300 dark:border-yellow-700">
+                    <div className="flex items-start gap-3">
+                      <Shield className="h-6 w-6 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-1" />
+                      <div>
+                        <h5 className="font-bold text-yellow-900 dark:text-yellow-100 mb-2">🔐 Why One-Way Hashing is Critical</h5>
+                        <ul className="text-sm text-yellow-800 dark:text-yellow-200 space-y-1">
+                          <li>• <strong>Irreversible</strong>: Cannot derive inputs from hash (computationally infeasible)</li>
+                          <li>• <strong>Deterministic</strong>: Same inputs always produce same hash</li>
+                          <li>• <strong>Unique</strong>: Different inputs produce completely different hashes (avalanche effect)</li>
+                          <li>• <strong>Fixed size</strong>: Always 32 bytes regardless of input size</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Why Privacy is Maintained - Timing Diagram */}
+                <div className="rounded-2xl border-2 border-purple-200 dark:border-purple-800 bg-white dark:bg-zinc-900 p-8">
+                  <h4 className="text-2xl font-bold text-purple-900 dark:text-purple-100 mb-6 flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-purple-600 animate-pulse"></div>
+                    Why Your Bid Stays Private Until Reveal
+                  </h4>
+
+                  <div className="space-y-6">
+                    {/* Timeline */}
+                    <div className="relative">
+                      {/* Horizontal timeline */}
+                      <div className="flex items-center justify-between mb-8">
+                        <div className="flex-1 h-2 bg-gradient-to-r from-blue-300 via-purple-300 to-green-300 dark:from-blue-700 dark:via-purple-700 dark:to-green-700 rounded-full"></div>
+                      </div>
+
+                      {/* Phase 1: Commit */}
+                      <div className="mb-8">
+                        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/40 rounded-xl p-6 border-2 border-blue-300 dark:border-blue-700">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold">1</div>
+                            <div>
+                              <h5 className="font-bold text-blue-900 dark:text-blue-100">COMMIT PHASE</h5>
+                              <p className="text-xs text-blue-700 dark:text-blue-300">Duration: commitPhaseDuration</p>
+                            </div>
+                            <EyeOff className="h-6 w-6 text-blue-500 ml-auto" />
+                          </div>
+
+                          <div className="space-y-3">
+                            <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 border border-blue-200 dark:border-blue-700">
+                              <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-2">What Blockchain Sees:</div>
+                              <div className="font-mono text-xs text-zinc-600 dark:text-zinc-400 space-y-1">
+                                <div>• Commitment: <span className="text-blue-600 dark:text-blue-400">0x8f7e6d5c...</span></div>
+                                <div>• Locked ETH: <span className="text-blue-600 dark:text-blue-400">2.0 ETH</span></div>
+                                <div>• Bidder: <span className="text-blue-600 dark:text-blue-400">0x742d35...</span></div>
+                                <div>• Timestamp: <span className="text-blue-600 dark:text-blue-400">1699564800</span></div>
+                              </div>
+                            </div>
+
+                            <div className="bg-red-50 dark:bg-red-950/30 rounded-lg p-4 border-2 border-red-200 dark:border-red-800">
+                              <div className="text-sm font-bold text-red-900 dark:text-red-100 mb-2 flex items-center gap-2">
+                                <EyeOff className="h-4 w-4" />
+                                What Blockchain CANNOT See:
+                              </div>
+                              <div className="font-mono text-xs text-red-700 dark:text-red-300 space-y-1">
+                                <div>✗ Domain name: <span className="blur-sm select-none">"alice.ntu"</span></div>
+                                <div>✗ Actual bid: <span className="blur-sm select-none">1.5 ETH</span></div>
+                                <div>✗ Secret: <span className="blur-sm select-none">0x4f3a8b...</span></div>
+                              </div>
+                              <div className="text-xs text-red-600 dark:text-red-400 mt-2 font-semibold">
+                                ⚠️ Impossible to reverse-engineer from hash alone!
+                              </div>
+                            </div>
+
+                            <div className="bg-yellow-50 dark:bg-yellow-950/30 rounded-lg p-3 border border-yellow-200 dark:border-yellow-800">
+                              <div className="text-xs text-yellow-800 dark:text-yellow-200 flex items-start gap-2">
+                                <Shield className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                                <span><strong>Privacy Protection:</strong> Even if someone tries all possible bids (brute force), the secret value (32 bytes = 2<sup>256</sup> possibilities) makes it computationally impossible to guess.</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Phase 2: Reveal */}
+                      <div className="mb-8">
+                        <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/40 dark:to-purple-900/40 rounded-xl p-6 border-2 border-purple-300 dark:border-purple-700">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="bg-purple-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold">2</div>
+                            <div>
+                              <h5 className="font-bold text-purple-900 dark:text-purple-100">REVEAL PHASE</h5>
+                              <p className="text-xs text-purple-700 dark:text-purple-300">Duration: revealPhaseDuration</p>
+                            </div>
+                            <Eye className="h-6 w-6 text-purple-500 ml-auto" />
+                          </div>
+
+                          <div className="space-y-3">
+                            <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 border border-purple-200 dark:border-purple-700">
+                              <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-2">Bidder Reveals:</div>
+                              <div className="font-mono text-xs text-zinc-600 dark:text-zinc-400 space-y-1">
+                                <div>• name: <span className="text-purple-600 dark:text-purple-400">"alice.ntu"</span></div>
+                                <div>• bidAmount: <span className="text-purple-600 dark:text-purple-400">1.5 ETH</span></div>
+                                <div>• secret: <span className="text-purple-600 dark:text-purple-400">0x4f3a8b...</span></div>
+                              </div>
+                            </div>
+
+                            <div className="flex justify-center my-2">
+                              <div className="text-xl text-purple-500">↓</div>
+                            </div>
+
+                            <div className="bg-green-50 dark:bg-green-950/30 rounded-lg p-4 border-2 border-green-200 dark:border-green-800">
+                              <div className="text-sm font-bold text-green-900 dark:text-green-100 mb-2 flex items-center gap-2">
+                                <CheckCircle className="h-4 w-4" />
+                                Smart Contract Verification:
+                              </div>
+                              <div className="font-mono text-xs text-green-700 dark:text-green-300 space-y-2">
+                                <div className="bg-white dark:bg-zinc-900 rounded p-2">
+                                  expected = keccak256("alice.ntu", 1.5 ETH, 0x4f3a8b..., 0x742d35...)
+                                  <br />
+                                  = <span className="text-green-600 dark:text-green-400">0x8f7e6d5c...</span>
+                                </div>
+                                <div className="bg-white dark:bg-zinc-900 rounded p-2">
+                                  stored = _bidderCommitment[0x742d35...]
+                                  <br />
+                                  = <span className="text-green-600 dark:text-green-400">0x8f7e6d5c...</span>
+                                </div>
+                                <div className="font-bold text-green-600 dark:text-green-400 text-center py-2">
+                                  ✓ MATCH! Bid is valid.
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+                              <div className="text-xs text-blue-800 dark:text-blue-200 flex items-start gap-2">
+                                <Clock className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                                <span><strong>Timing Validation:</strong> Contract checks that commitment timestamp &lt; commitEnd. This prevents creating commitments after seeing other bids (post-auction manipulation).</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Phase 3: Finalize */}
+                      <div>
+                        <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950/40 dark:to-emerald-900/40 rounded-xl p-6 border-2 border-green-300 dark:border-green-700">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="bg-green-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold">3</div>
+                            <div>
+                              <h5 className="font-bold text-green-900 dark:text-green-100">FINALIZE</h5>
+                              <p className="text-xs text-green-700 dark:text-green-300">After revealEnd timestamp</p>
+                            </div>
+                            <Sparkles className="h-6 w-6 text-green-500 ml-auto" />
+                          </div>
+
+                          <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 border border-green-200 dark:border-green-700">
+                            <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-3">Auction Results:</div>
+                            <div className="space-y-2 text-xs">
+                              <div className="flex items-center justify-between p-2 bg-green-100 dark:bg-green-900/30 rounded">
+                                <span className="font-mono text-green-700 dark:text-green-300">Winner:</span>
+                                <span className="font-bold text-green-900 dark:text-green-100">0x742d35... (1.5 ETH)</span>
+                              </div>
+                              <div className="flex items-center justify-between p-2 bg-zinc-100 dark:bg-zinc-800 rounded">
+                                <span className="font-mono text-zinc-600 dark:text-zinc-400">Other bidders:</span>
+                                <span className="text-zinc-700 dark:text-zinc-300">Full refund available</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Attack Prevention Diagram */}
+                <div className="rounded-2xl border-2 border-red-200 dark:border-red-800 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 p-8">
+                  <h4 className="text-2xl font-bold text-red-900 dark:text-red-100 mb-6 flex items-center gap-2">
+                    <Shield className="h-6 w-6" />
+                    Attack Prevention Architecture
+                  </h4>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Attack 1 */}
+                    <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 border-2 border-red-300 dark:border-red-700">
+                      <div className="text-sm font-bold text-red-700 dark:text-red-300 mb-3 flex items-center gap-2">
+                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                        Attack: Bid Sniping
+                      </div>
+                      <div className="text-xs text-zinc-600 dark:text-zinc-400 mb-3">
+                        Attacker sees your bid of 1.5 ETH and submits 1.51 ETH to win by minimal margin.
+                      </div>
+                      <div className="bg-green-100 dark:bg-green-900/30 rounded-lg p-3 border border-green-300 dark:border-green-700">
+                        <div className="text-xs font-bold text-green-800 dark:text-green-200 mb-1">✓ Prevention:</div>
+                        <div className="text-xs text-green-700 dark:text-green-300">
+                          During commit phase, your bid amount is hidden in the hash. Attacker only sees hash, not the 1.5 ETH value.
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Attack 2 */}
+                    <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 border-2 border-red-300 dark:border-red-700">
+                      <div className="text-sm font-bold text-red-700 dark:text-red-300 mb-3 flex items-center gap-2">
+                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                        Attack: Front-Running
+                      </div>
+                      <div className="text-xs text-zinc-600 dark:text-zinc-400 mb-3">
+                        MEV bot detects your commit transaction in mempool and submits same commitment with higher gas to get mined first.
+                      </div>
+                      <div className="bg-green-100 dark:bg-green-900/30 rounded-lg p-3 border border-green-300 dark:border-green-700">
+                        <div className="text-xs font-bold text-green-800 dark:text-green-200 mb-1">✓ Prevention:</div>
+                        <div className="text-xs text-green-700 dark:text-green-300">
+                          Commitment includes your address. Bot can't copy your hash because it would need your exact secret (unknown to them).
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Attack 3 */}
+                    <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 border-2 border-red-300 dark:border-red-700">
+                      <div className="text-sm font-bold text-red-700 dark:text-red-300 mb-3 flex items-center gap-2">
+                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                        Attack: Post-Commit Manipulation
+                      </div>
+                      <div className="text-xs text-zinc-600 dark:text-zinc-400 mb-3">
+                        Attacker waits until reveal phase, sees highest bid is 2 ETH, then tries to create commitment for 2.1 ETH.
+                      </div>
+                      <div className="bg-green-100 dark:bg-green-900/30 rounded-lg p-3 border border-green-300 dark:border-green-700">
+                        <div className="text-xs font-bold text-green-800 dark:text-green-200 mb-1">✓ Prevention:</div>
+                        <div className="text-xs text-green-700 dark:text-green-300">
+                          Contract checks: commitTimestamp &lt; commitEnd. Late commitments are rejected during reveal validation.
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Attack 4 */}
+                    <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 border-2 border-red-300 dark:border-red-700">
+                      <div className="text-sm font-bold text-red-700 dark:text-red-300 mb-3 flex items-center gap-2">
+                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                        Attack: Commitment Spam
+                      </div>
+                      <div className="text-xs text-zinc-600 dark:text-zinc-400 mb-3">
+                        Attacker commits hundreds of hashes with no intention to reveal, blocking legitimate bidders.
+                      </div>
+                      <div className="bg-green-100 dark:bg-green-900/30 rounded-lg p-3 border border-green-300 dark:border-green-700">
+                        <div className="text-xs font-bold text-green-800 dark:text-green-200 mb-1">✓ Prevention:</div>
+                        <div className="text-xs text-green-700 dark:text-green-300">
+                          Non-revealers forfeit their locked ETH. Economic penalty makes spam costly. Plus commitBid() requires ETH &gt; 0.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Data Flow Diagram */}
+                <div className="rounded-2xl border-2 border-cyan-200 dark:border-cyan-800 bg-white dark:bg-zinc-900 p-8">
+                  <h4 className="text-2xl font-bold text-cyan-900 dark:text-cyan-100 mb-6 flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-cyan-600 animate-pulse"></div>
+                    Complete Data Flow: Bidder → Contract → Storage
+                  </h4>
+
+                  <div className="space-y-4">
+                    {/* User to Frontend */}
+                    <div className="flex items-center gap-4">
+                      <div className="bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900/40 dark:to-blue-800/40 rounded-lg p-4 flex-1 border border-blue-300 dark:border-blue-700">
+                        <div className="text-xs font-bold text-blue-900 dark:text-blue-100 mb-1">USER INPUT</div>
+                        <div className="font-mono text-xs text-blue-700 dark:text-blue-300">name, bid, secret</div>
+                      </div>
+                      <div className="text-2xl text-cyan-500">→</div>
+                      <div className="bg-gradient-to-r from-cyan-100 to-cyan-200 dark:from-cyan-900/40 dark:to-cyan-800/40 rounded-lg p-4 flex-1 border border-cyan-300 dark:border-cyan-700">
+                        <div className="text-xs font-bold text-cyan-900 dark:text-cyan-100 mb-1">FRONTEND (JavaScript)</div>
+                        <div className="font-mono text-xs text-cyan-700 dark:text-cyan-300">makeCommitment()</div>
+                      </div>
+                    </div>
+
+                    {/* Frontend to Contract */}
+                    <div className="flex justify-center">
+                      <div className="text-2xl text-cyan-500">↓</div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="bg-gradient-to-r from-purple-100 to-purple-200 dark:from-purple-900/40 dark:to-purple-800/40 rounded-lg p-4 flex-1 border border-purple-300 dark:border-purple-700">
+                        <div className="text-xs font-bold text-purple-900 dark:text-purple-100 mb-1">TRANSACTION</div>
+                        <div className="font-mono text-xs text-purple-700 dark:text-purple-300">commitBid(hash) + ETH</div>
+                      </div>
+                      <div className="text-2xl text-cyan-500">→</div>
+                      <div className="bg-gradient-to-r from-orange-100 to-orange-200 dark:from-orange-900/40 dark:to-orange-800/40 rounded-lg p-4 flex-1 border border-orange-300 dark:border-orange-700">
+                        <div className="text-xs font-bold text-orange-900 dark:text-orange-100 mb-1">SMART CONTRACT</div>
+                        <div className="font-mono text-xs text-orange-700 dark:text-orange-300">commitBid() function</div>
+                      </div>
+                    </div>
+
+                    {/* Contract to Storage */}
+                    <div className="flex justify-center">
+                      <div className="text-2xl text-cyan-500">↓</div>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-900 rounded-xl p-6 border-2 border-zinc-300 dark:border-zinc-700">
+                      <div className="text-xs font-bold text-zinc-900 dark:text-zinc-100 mb-3 uppercase">Blockchain Storage (State Variables)</div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono">
+                        <div className="bg-white dark:bg-zinc-950 rounded p-3 border border-zinc-300 dark:border-zinc-700">
+                          <div className="text-cyan-600 dark:text-cyan-400 mb-1">_commitmentValues</div>
+                          <div className="text-zinc-600 dark:text-zinc-400">[hash] → ETH amount</div>
+                        </div>
+                        <div className="bg-white dark:bg-zinc-950 rounded p-3 border border-zinc-300 dark:border-zinc-700">
+                          <div className="text-cyan-600 dark:text-cyan-400 mb-1">_bidderCommitment</div>
+                          <div className="text-zinc-600 dark:text-zinc-400">[address] → hash</div>
+                        </div>
+                        <div className="bg-white dark:bg-zinc-950 rounded p-3 border border-zinc-300 dark:border-zinc-700">
+                          <div className="text-cyan-600 dark:text-cyan-400 mb-1">_bidderCommitTime</div>
+                          <div className="text-zinc-600 dark:text-zinc-400">[address] → timestamp</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* During Reveal */}
+                    <div className="flex justify-center my-4">
+                      <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-4 py-2 rounded-full">
+                        REVEAL PHASE BEGINS
+                      </div>
+                    </div>
+
+                    {/* Reveal Flow */}
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl p-6 border-2 border-green-300 dark:border-green-700">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 flex-1 border border-green-300 dark:border-green-700">
+                          <div className="text-xs font-bold text-green-900 dark:text-green-100 mb-1">USER REVEALS</div>
+                          <div className="font-mono text-xs text-green-700 dark:text-green-300">revealBid(name, bid, secret)</div>
+                        </div>
+                        <div className="text-2xl text-green-500">→</div>
+                        <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 flex-1 border border-green-300 dark:border-green-700">
+                          <div className="text-xs font-bold text-green-900 dark:text-green-100 mb-1">CONTRACT VERIFIES</div>
+                          <div className="font-mono text-xs text-green-700 dark:text-green-300">hash(inputs) == stored</div>
+                        </div>
+                      </div>
+                      <div className="bg-white dark:bg-zinc-900 rounded-lg p-3 border border-green-300 dark:border-green-700 text-center">
+                        <div className="text-xs text-green-600 dark:text-green-400 font-bold">✓ If match: Update highestBid/highestBidder</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Key Takeaways */}
+                <div className="rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 p-8">
+                  <h4 className="text-2xl font-bold text-emerald-900 dark:text-emerald-100 mb-6 flex items-center gap-2">
+                    <Sparkles className="h-6 w-6" />
+                    Key Architectural Principles
+                  </h4>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white dark:bg-zinc-900 rounded-lg p-5 border border-emerald-300 dark:border-emerald-700">
+                      <div className="flex items-start gap-3">
+                        <div className="bg-emerald-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">1</div>
+                        <div>
+                          <div className="text-sm font-bold text-emerald-900 dark:text-emerald-100 mb-1">Cryptographic Commitment</div>
+                          <div className="text-xs text-zinc-600 dark:text-zinc-400">
+                            One-way hash functions (keccak256) ensure bids cannot be reverse-engineered from commitment hashes.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-zinc-900 rounded-lg p-5 border border-emerald-300 dark:border-emerald-700">
+                      <div className="flex items-start gap-3">
+                        <div className="bg-emerald-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">2</div>
+                        <div>
+                          <div className="text-sm font-bold text-emerald-900 dark:text-emerald-100 mb-1">Secret Value Protection</div>
+                          <div className="text-xs text-zinc-600 dark:text-zinc-400">
+                            32-byte secret (2<sup>256</sup> possibilities) makes brute-force attacks computationally impossible even with known bid amounts.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-zinc-900 rounded-lg p-5 border border-emerald-300 dark:border-emerald-700">
+                      <div className="flex items-start gap-3">
+                        <div className="bg-emerald-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">3</div>
+                        <div>
+                          <div className="text-sm font-bold text-emerald-900 dark:text-emerald-100 mb-1">Temporal Validation</div>
+                          <div className="text-xs text-zinc-600 dark:text-zinc-400">
+                            Timestamp checks prevent post-commit manipulation. Commitments must be created before reveal phase starts.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-zinc-900 rounded-lg p-5 border border-emerald-300 dark:border-emerald-700">
+                      <div className="flex items-start gap-3">
+                        <div className="bg-emerald-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">4</div>
+                        <div>
+                          <div className="text-sm font-bold text-emerald-900 dark:text-emerald-100 mb-1">Economic Incentives</div>
+                          <div className="text-xs text-zinc-600 dark:text-zinc-400">
+                            Non-revealers forfeit deposits, ensuring honest participation and preventing commitment spam attacks.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </motion.div>
           </motion.div>
