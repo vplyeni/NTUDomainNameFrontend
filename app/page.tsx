@@ -249,11 +249,17 @@ export default function Home() {
                   </h4>
                 </div>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
-                  During the commit phase, submit a hidden commitment with your bid amount. Your actual bid stays secret thanks to cryptographic hashing.
+                  During the commit phase, submit a hidden commitment with your bid amount. Your actual bid stays secret thanks to cryptographic hashing. You can commit to multiple auctions simultaneously!
                 </p>
-                <div className="flex items-start gap-2 text-xs text-zinc-500 dark:text-zinc-500">
-                  <Lock className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                  <span>Your bid amount remains private</span>
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2 text-xs text-zinc-500 dark:text-zinc-500">
+                    <Lock className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <span>Your bid amount remains private</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-xs text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <span>Cancel anytime before revealing to get full refund</span>
+                  </div>
                 </div>
               </div>
 
@@ -268,7 +274,7 @@ export default function Home() {
                   </h4>
                 </div>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
-                  After commit phase ends, reveal your actual bid amount. The smart contract verifies it matches your commitment and determines the highest bidder.
+                  After commit phase ends, reveal your actual bid amount. The smart contract verifies it matches your commitment and determines the highest bidder. Can reveal multiple commitments for the same domain - highest counts!
                 </p>
                 <div className="flex items-start gap-2 text-xs text-zinc-500 dark:text-zinc-500">
                   <Clock className="h-4 w-4 mt-0.5 flex-shrink-0" />
@@ -314,11 +320,36 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Step 6: Send Tokens */}
+              {/* Step 6: Manage Commitments */}
+              <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 border-l-4 border-l-indigo-500">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold">
+                    6
+                  </div>
+                  <h4 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
+                    Manage Commitments <Lock className="h-4 w-4" />
+                  </h4>
+                </div>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+                  View all your unrevealed commitments in one place. Cancel any commitment before revealing to get your funds back instantly. No lock-in period!
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2 text-xs text-zinc-500 dark:text-zinc-500">
+                    <Shield className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <span>Cancel anytime before reveal</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                    <Sparkles className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <span>NEW: Check the Commitments page!</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 7: Send Tokens */}
               <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 font-bold">
-                    6
+                    7
                   </div>
                   <h4 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
                     Send to Domains <Send className="h-4 w-4" />
@@ -1025,11 +1056,11 @@ export default function Home() {
                     <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
                       The NTU Domain Name Service (NNS) is a decentralized domain name registrar built on Ethereum using Solidity ^0.8.20. 
                       It implements a <strong>commit-reveal blind auction mechanism</strong> to ensure fair and private bidding for .ntu domain names. 
-                      The contract inherits from OpenZeppelin's <code className="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-xs">Ownable</code> for access control and implements a custom reentrancy guard for secure fund transfers.
+                      The contract inherits from OpenZeppelin's <code className="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-xs">Ownable</code> for access control and follows the <strong>Checks-Effects-Interactions (CEI) pattern</strong> for maximum security without reentrancy guards.
                     </p>
                     <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                      Key features include: blind auction system, domain renewal with grace period, domain transfer capabilities, human-readable ETH transfers to domains, 
-                      and comprehensive auction management with timing controls.
+                      Key features include: flexible commitment system with cancellation, blind auction with multiple bids support, domain renewal with 90-day grace period, 
+                      domain transfer capabilities, human-readable ETH transfers to domains, and comprehensive auction management with timing controls.
                     </p>
                   </div>
                 </div>
@@ -1056,6 +1087,28 @@ export default function Home() {
                       <li>• <code>registrant</code>: Current owner's address</li>
                       <li>• <code>lastBidAmount</code>: Amount paid in auction (used for renewal pricing)</li>
                     </ul>
+                  </div>
+
+                  <div className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 rounded-lg border-l-4 border-l-indigo-500">
+                    <div className="flex items-center gap-2 mb-2">
+                      <code className="text-xs text-indigo-600 dark:text-indigo-400 font-mono">
+                        struct Commitment
+                      </code>
+                      <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/40 px-2 py-0.5 rounded">NEW</span>
+                    </div>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">
+                      Flexible commitment system - users can have multiple commitments:
+                    </p>
+                    <ul className="text-xs text-zinc-500 dark:text-zinc-500 space-y-1 ml-4">
+                      <li>• <code>commitmentHash</code>: The unique commitment hash (bytes32)</li>
+                      <li>• <code>lockedValue</code>: ETH locked with this commitment (uint256)</li>
+                      <li>• <code>timestamp</code>: When commitment was made (uint64)</li>
+                      <li>• <code>revealed</code>: Whether this commitment has been revealed (bool)</li>
+                      <li>• <code>revealedForDomain</code>: Which domain this was revealed for (string)</li>
+                    </ul>
+                    <div className="mt-3 p-2 bg-white/50 dark:bg-zinc-900/50 rounded text-xs text-indigo-700 dark:text-indigo-300">
+                      <strong>✨ Key Feature:</strong> Cancel unrevealed commitments anytime to get full refund! Once revealed, funds locked until auction finalizes.
+                    </div>
                   </div>
 
                   <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg">
@@ -1147,30 +1200,61 @@ export default function Home() {
                 </div>
                 <h5 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">Purpose & Mechanism</h5>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4 leading-relaxed">
-                  Accepts a commitment hash and ETH payment during the commit phase. The commitment is stored <strong>globally</strong> (not tied to a specific auction), 
-                  allowing bidders to hide which auction they're bidding on until the reveal phase.
+                  Accepts a commitment hash and ETH payment. Creates a new <code className="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-xs">Commitment</code> struct 
+                  and tracks it in <code className="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-xs">_userCommitments[msg.sender]</code>. 
+                  The commitment is stored <strong>globally</strong> (not tied to a specific auction), allowing bidders to hide which auction they're bidding on until the reveal phase.
                 </p>
-                <h5 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">Key Design Choice: Global Commitments</h5>
+                <h5 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">Key Design: Flexible Commitment System</h5>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4 leading-relaxed">
-                  Unlike typical auction systems, commitments aren't linked to specific auctions. This provides extra privacy – 
-                  even the auction target is hidden until reveal. The contract tracks:
+                  Unlike typical auction systems, users can have <strong>multiple active commitments</strong> for different auctions simultaneously. 
+                  The contract tracks each commitment independently in <code className="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-xs">_commitmentData</code> 
+                  and maintains a list per user in <code className="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-xs">_userCommitments</code>.
                 </p>
-                <ul className="text-sm text-zinc-600 dark:text-zinc-400 space-y-1 ml-6 mb-4">
-                  <li>• <code className="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-xs">_commitmentValues[commitment]</code>: Total ETH locked for this hash</li>
-                  <li>• <code className="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-xs">_bidderCommitment[msg.sender]</code>: Bidder's latest commitment</li>
-                  <li>• <code className="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-xs">_bidderCommitTime[msg.sender]</code>: When commitment was made (for validation)</li>
-                </ul>
                 <h5 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">Security Features</h5>
                 <ul className="text-sm text-zinc-600 dark:text-zinc-400 space-y-1 ml-6 mb-4">
                   <li>• Requires non-zero ETH to prevent spam</li>
-                  <li>• Allows multiple commits to same hash (accumulates value)</li>
-                  <li>• Timestamp recorded for commit-time validation during reveal</li>
+                  <li>• Each commitment stored with timestamp for validation</li>
+                  <li>• Marked as unrevealed initially (can be cancelled)</li>
+                  <li>• Pure state updates - no external calls, inherently safe</li>
                 </ul>
                 <h5 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">Use Case</h5>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Bidders commit during the commit phase window. They must send ETH ≥ their intended bid amount. 
-                  Excess ETH acts as a deposit that's refunded after finalization if they lose.
+                  Bidders can commit to multiple auctions. ETH is locked but can be withdrawn via <code className="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-xs">cancelCommitment()</code> before revealing.
                 </p>
+              </div>
+
+              {/* Function 3.5: cancelCommitment - NEW */}
+              <div className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/50 to-blue-50/50 dark:border-indigo-800 dark:from-indigo-950/20 dark:to-blue-950/20 p-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <code className="text-sm font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/40 px-3 py-2 rounded-lg block overflow-x-auto flex-1">
+                    function cancelCommitment(bytes32 commitment) external
+                  </code>
+                  <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/40 px-3 py-1 rounded-full whitespace-nowrap">NEW ✨</span>
+                </div>
+                <h5 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">Purpose & Freedom</h5>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4 leading-relaxed">
+                  Allows users to cancel any <strong>unrevealed</strong> commitment and get their full ETH refund instantly. 
+                  This provides flexibility - users aren't locked in until they choose to reveal their bid.
+                </p>
+                <h5 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">CEI Pattern - No Reentrancy Guard Needed!</h5>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4 leading-relaxed">
+                  Follows the <strong>Checks-Effects-Interactions</strong> pattern perfectly:
+                </p>
+                <div className="bg-white/50 dark:bg-zinc-900/50 rounded-lg p-4 mb-4 font-mono text-xs">
+                  <div className="text-green-600 dark:text-green-400 mb-1">// CHECK: Validate commitment exists and unrevealed</div>
+                  <div className="text-blue-600 dark:text-blue-400 mb-1">// EFFECT: Set lockedValue = 0 BEFORE external call</div>
+                  <div className="text-purple-600 dark:text-purple-400">// INTERACTION: Send ETH (even if re-entered, value already 0!)</div>
+                </div>
+                <h5 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">Security</h5>
+                <ul className="text-sm text-zinc-600 dark:text-zinc-400 space-y-1 ml-6 mb-4">
+                  <li>• Validates commitment belongs to msg.sender</li>
+                  <li>• Prevents cancellation after revealing (funds locked until finalization)</li>
+                  <li>• Sets value to 0 before transfer - reentrancy safe by design</li>
+                  <li>• No loops or external dependencies</li>
+                </ul>
+                <div className="bg-indigo-100 dark:bg-indigo-900/30 rounded-lg p-3 text-xs text-indigo-700 dark:text-indigo-300">
+                  <strong>💡 UX Win:</strong> Users can change their mind freely! Commit to an auction, then cancel if they find a better opportunity. No penalties, instant refunds.
+                </div>
               </div>
 
               {/* Function 4: revealBid */}

@@ -743,6 +743,101 @@ export const NNS_ABI = [
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "commitment",
+        "type": "bytes32"
+      }
+    ],
+    "name": "cancelCommitment",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getUserCommitments",
+    "outputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "",
+        "type": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "commitment",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getCommitmentInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "lockedValue",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint64",
+        "name": "timestamp",
+        "type": "uint64"
+      },
+      {
+        "internalType": "bool",
+        "name": "revealed",
+        "type": "bool"
+      },
+      {
+        "internalType": "string",
+        "name": "revealedForDomain",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getUserUnrevealedCommitments",
+    "outputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "commitments",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "values",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint64[]",
+        "name": "timestamps",
+        "type": "uint64[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "owner",
     "outputs": [

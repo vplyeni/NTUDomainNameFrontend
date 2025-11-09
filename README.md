@@ -9,6 +9,9 @@ NTU Name Service (NNS) is a Web3 application that allows users to register, mana
 ### Key Features
 
 - **🔒 Secure Blind Auction System**: Commit-reveal mechanism ensures fair bidding without revealing bid amounts upfront
+- **🎯 Multiple Commitments**: Commit to multiple auctions simultaneously and manage them all in one place
+- **💰 Flexible Cancellation**: Cancel unrevealed commitments anytime for instant full refunds
+- **📊 Commitment Dashboard**: Track all your active commitments, locked values, and reveal status
 - **⚡ Instant Resolution**: Resolve `.ntu` domains to Ethereum addresses instantly on-chain
 - **🌐 Full Ownership**: Complete domain ownership with transfer and renewal capabilities
 - **💎 Modern UI/UX**: Beautiful, fast, and intuitive interface with smooth animations
@@ -106,10 +109,38 @@ The application includes the following pages:
 - **`/`** - Landing page with domain search and feature showcase
 - **`/search`** - Advanced domain search interface
 - **`/auctions`** - Browse and participate in domain auctions
+- **`/commitments`** - ✨ **NEW!** Manage all your commitments (view, cancel, track)
 - **`/my-domains`** - Manage your owned domains
 - **`/owner`** - Owner/admin dashboard
 - **`/send-tokens`** - Token transfer functionality
 - **`/debug`** - Development debugging tools
+
+## 🎯 Commitment Management (New Feature!)
+
+The `/commitments` page provides a comprehensive dashboard for managing all your auction commitments:
+
+### Features
+- **View All Commitments**: See all your active commitments in one place
+- **Real-time Status**: Track which commitments are revealed vs unrevealed
+- **Locked Value Display**: View the exact ETH amount locked in each commitment
+- **Timestamp Tracking**: See when each commitment was made
+- **Instant Cancellation**: Cancel any unrevealed commitment with one click for full refund
+- **Domain Tracking**: See which domain each revealed commitment was for
+- **Local Storage Backup**: Stores commitment details locally for easy access
+
+### How It Works
+1. Navigate to the "Manage Commitments" page from the header
+2. Connect your wallet to view your commitments
+3. Browse all your active commitments with detailed information
+4. For unrevealed commitments, click "Cancel" to get an instant refund
+5. Revealed commitments show the domain name they were revealed for
+
+### Security & UX
+- All cancellations follow the CEI pattern for maximum security
+- Immediate refunds with no delays
+- Transaction feedback with success/error states
+- Loading states for better user experience
+- Empty states with helpful guidance
 
 ## 🎨 Landing Page Features
 
@@ -123,14 +154,23 @@ The landing page (`/`) includes:
 
 ### Feature Highlights
 - **Secure Blind Auction**: Commit-reveal mechanism for fair bidding
+- **Multiple Commitments**: Bid on multiple domains simultaneously
+- **Instant Cancellation**: Get full refunds on unrevealed commitments anytime
 - **Instant Resolution**: On-chain domain resolution
 - **Full Ownership**: Complete control with transfer and renewal capabilities
 - **Modern Platform**: Built with cutting-edge web technologies
 
 ### Additional Sections
 - **How It Works**: Step-by-step guide for domain registration
+  - Multiple commitments support
+  - Commitment cancellation process
+  - Multiple reveals for same domain
+  - Commitment management dashboard
 - **User Interface Guide**: Interactive tutorial for navigating the platform
 - **Architecture Overview**: Technical implementation details
+  - CEI pattern security (no reentrancy guards needed)
+  - Flexible commitment system
+  - On-chain commitment tracking
 - **Technical Specifications**: Smart contract and blockchain information
 - **Frequently Asked Questions (FAQ)**: Common questions and answers
 
@@ -150,6 +190,7 @@ frontend/
 │   ├── providers.tsx      # React Query & Web3 providers
 │   ├── globals.css        # Global styles
 │   ├── auctions/          # Auctions page
+│   ├── commitments/       # ✨ Commitment management page
 │   ├── my-domains/        # User domains management
 │   ├── owner/             # Owner dashboard
 │   ├── search/            # Domain search page
@@ -160,6 +201,7 @@ frontend/
 │   ├── SearchBar.tsx      # Domain search component
 │   └── DomainCard.tsx     # Domain display card
 ├── lib/                   # Utility functions and configurations
+│   └── contract.ts        # Updated with new commitment functions
 ├── public/                # Static assets
 ├── next.config.ts         # Next.js configuration
 ├── tailwind.config.ts     # Tailwind CSS configuration

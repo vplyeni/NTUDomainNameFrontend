@@ -3,7 +3,7 @@
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { memo, useCallback, useMemo, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Wallet, LogOut, Loader2, Crown, Send, Menu, X } from 'lucide-react'
+import { Wallet, LogOut, Loader2, Crown, Send, Menu, X, Lock } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useIsOwner } from '@/lib/useIsOwner'
@@ -100,6 +100,15 @@ export const Header = memo(function Header() {
                 className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50 transition-colors"
               >
                 Auctions
+              </motion.span>
+            </Link>
+            <Link href="/commitments">
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center gap-1.5 text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50 transition-colors"
+              >
+                <Lock className="h-4 w-4" />
+                Commitments
               </motion.span>
             </Link>
             <Link href="/send-tokens">
@@ -287,6 +296,19 @@ export const Header = memo(function Header() {
                       </svg>
                     </div>
                     <span className="text-base font-medium">Auctions</span>
+                  </motion.div>
+                </Link>
+                
+                <Link href="/commitments" onClick={() => setMobileMenuOpen(false)}>
+                  <motion.div
+                    whileHover={{ x: 4 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-zinc-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:text-zinc-300 dark:hover:from-blue-950/30 dark:hover:to-purple-950/30 transition-all group"
+                  >
+                    <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-950/50 group-hover:bg-indigo-500 dark:group-hover:bg-indigo-600 transition-colors">
+                      <Lock className="h-4 w-4 text-indigo-600 dark:text-indigo-400 group-hover:text-white transition-colors" />
+                    </div>
+                    <span className="text-base font-medium">Commitments</span>
                   </motion.div>
                 </Link>
                 
