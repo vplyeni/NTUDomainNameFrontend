@@ -216,15 +216,15 @@ export default function OwnerPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600">
-              <Crown className="h-6 w-6 text-white" />
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex-shrink-0">
+              <Crown className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-extrabold text-zinc-900">Owner Panel</h1>
-              <p className="text-sm text-zinc-600">Manage auctionable domains</p>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900">Owner Panel</h1>
+              <p className="text-xs sm:text-sm text-zinc-600">Manage auctionable domains</p>
             </div>
           </div>
         </motion.div>

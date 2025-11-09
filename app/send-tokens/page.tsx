@@ -273,15 +273,15 @@ export default function SendTokensPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 text-center"
+          className="mb-6 sm:mb-8 text-center"
         >
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600">
-              <Send className="h-6 w-6 text-white" />
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2">
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0">
+              <Send className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
-            <div>
-              <h1 className="text-3xl font-extrabold text-zinc-900">Send</h1>
-              <p className="text-sm text-zinc-600">Transfer ETH or ALP to domains or addresses</p>
+            <div className="text-left sm:text-center">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900">Send</h1>
+              <p className="text-xs sm:text-sm text-zinc-600">Transfer ETH or ALP to domains or addresses</p>
             </div>
           </div>
         </motion.div>

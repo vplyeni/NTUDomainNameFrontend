@@ -44,14 +44,14 @@ export default function AuctionsPage() {
           className="mb-12"
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-red-600">
-              <Gavel className="h-6 w-6 text-white" />
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex-shrink-0">
+              <Gavel className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-4xl font-extrabold text-zinc-900 dark:text-zinc-50">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-zinc-900 dark:text-zinc-50">
                 Active Auctions
               </h1>
-              <p className="mt-1 text-lg text-zinc-600 dark:text-zinc-400">
+              <p className="mt-1 text-sm sm:text-base md:text-lg text-zinc-600 dark:text-zinc-400">
                 Browse and participate in ongoing domain auctions
               </p>
             </div>

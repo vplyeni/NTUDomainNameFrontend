@@ -204,12 +204,12 @@ export default function MyDomainsPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
+          className="mb-8 sm:mb-12"
         >
-          <h1 className="text-4xl font-extrabold text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-zinc-50">
             My Domains
           </h1>
-          <p className="mt-2 text-lg text-zinc-600 dark:text-zinc-400">
+          <p className="mt-2 text-base sm:text-lg text-zinc-600 dark:text-zinc-400">
             Manage your registered .ntu domains
           </p>
         </motion.div>

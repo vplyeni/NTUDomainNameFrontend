@@ -63,8 +63,8 @@ export const SearchBar = memo(function SearchBar({ onSearch, placeholder = "Sear
       className="w-full max-w-3xl"
     >
       <div className="relative">
-        <div className="absolute inset-y-0 left-0 flex items-center pl-4">
-          <Search className="h-5 w-5 text-zinc-400" />
+        <div className="absolute inset-y-0 left-0 flex items-center pl-3 sm:pl-4">
+          <Search className="h-4 w-4 sm:h-5 sm:w-5 text-zinc-400" />
         </div>
         <input
           type="text"
@@ -77,20 +77,23 @@ export const SearchBar = memo(function SearchBar({ onSearch, placeholder = "Sear
             error 
               ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' 
               : 'border-zinc-200 focus:border-blue-500 focus:ring-blue-500/10 dark:border-zinc-700 dark:focus:border-blue-400'
-          } bg-white py-4 pl-12 pr-32 text-lg font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-4 dark:bg-zinc-900 dark:text-zinc-50 dark:placeholder:text-zinc-500 transition-colors`}
+          } bg-white py-3 sm:py-4 pl-10 sm:pl-12 pr-20 sm:pr-32 text-base sm:text-lg font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-4 dark:bg-zinc-900 dark:text-zinc-50 dark:placeholder:text-zinc-500 transition-colors`}
         />
-        <div className="absolute inset-y-0 right-0 flex items-center pr-2">
+        <div className="absolute inset-y-0 right-0 flex items-center pr-1.5 sm:pr-2">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             type="submit"
             disabled={isSearching || !domain.trim()}
-            className="rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-2.5 text-sm font-semibold text-white hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 px-3 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-white hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {isSearching ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              'Search'
+              <span className="hidden xs:inline">Search</span>
+            )}
+            {!isSearching && (
+              <Search className="h-4 w-4 xs:hidden" />
             )}
           </motion.button>
         </div>

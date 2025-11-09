@@ -285,9 +285,9 @@ function SearchContent() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
+          className="mb-8 sm:mb-12"
         >
-          <h1 className="mb-8 text-center text-4xl font-extrabold text-zinc-900 dark:text-zinc-50">
+          <h1 className="mb-6 sm:mb-8 text-center text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-zinc-50">
             Find Your Perfect Domain
           </h1>
           <SearchBar onSearch={handleSearch} autoFocus />
@@ -301,7 +301,7 @@ function SearchContent() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
+              className="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-6 md:p-8 shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
             >
               {isCheckingAvailability ? (
                 <div className="flex items-center justify-center py-12">
@@ -310,9 +310,9 @@ function SearchContent() {
               ) : (
                 <div>
                   {/* Domain Status */}
-                  <div className="mb-8 flex items-center justify-between border-b border-zinc-200 pb-6 dark:border-zinc-800">
-                    <div>
-                      <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+                  <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-200 pb-6 dark:border-zinc-800">
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50 break-words">
                         {searchDomain}
                       </h2>
                       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
@@ -320,14 +320,14 @@ function SearchContent() {
                       </p>
                     </div>
                     {isAvailable ? (
-                      <div className="flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-green-700 dark:bg-green-950/20 dark:text-green-400">
-                        <CheckCircle className="h-5 w-5" />
-                        <span className="font-semibold">Available</span>
+                      <div className="flex items-center gap-2 rounded-full bg-green-100 px-3 sm:px-4 py-1.5 sm:py-2 text-green-700 dark:bg-green-950/20 dark:text-green-400 flex-shrink-0">
+                        <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <span className="font-semibold text-sm sm:text-base">Available</span>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 rounded-full bg-red-100 px-4 py-2 text-red-700 dark:bg-red-950/20 dark:text-red-400">
-                        <XCircle className="h-5 w-5" />
-                        <span className="font-semibold">Not Available</span>
+                      <div className="flex items-center gap-2 rounded-full bg-red-100 px-3 sm:px-4 py-1.5 sm:py-2 text-red-700 dark:bg-red-950/20 dark:text-red-400 flex-shrink-0">
+                        <XCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <span className="font-semibold text-sm sm:text-base">Not Available</span>
                       </div>
                     )}
                   </div>
@@ -374,8 +374,8 @@ function SearchContent() {
                       {auctionInfo && auctionInfo[1] ? (
                         // Auction is finalized - show withdraw button
                         <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/20">
-                          <div className="flex items-start justify-between">
-                            <div>
+                          <div className="flex flex-col sm:flex-row items-start gap-3 sm:justify-between">
+                            <div className="flex-1">
                               <h3 className="mb-1 text-sm font-semibold text-amber-900 dark:text-amber-400">
                                 Funds Available to Withdraw
                               </h3>
@@ -394,7 +394,7 @@ function SearchContent() {
                               whileTap={{ scale: 0.95 }}
                               onClick={withdrawFunds}
                               disabled={isPending || isConfirming || isConfirmed}
-                              className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-2 text-sm font-semibold text-white hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 transition-all"
+                              className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 transition-all flex-shrink-0"
                             >
                               {isPending || isConfirming ? (
                                 <span className="flex items-center gap-2">
@@ -462,17 +462,20 @@ function SearchContent() {
                   ) : isAvailable && isAuctionable ? (
                     <div className="space-y-6">
                       {/* Step Indicators */}
-                      <div className="flex items-center justify-center gap-4">
-                        {['Start Auction', 'Commit Bid', 'Reveal Bid', 'Finalize'].map((label, i) => (
-                          <div key={label} className="flex items-center gap-2">
-                            <div className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                              ['search', 'commit', 'reveal', 'finalize'][i] === step
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-zinc-200 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400'
-                            } text-sm font-semibold`}>
-                              {i + 1}
+                      <div className="flex items-center justify-center gap-2 sm:gap-4 overflow-x-auto pb-2">
+                        {['Start', 'Commit', 'Reveal', 'Finalize'].map((label, i) => (
+                          <div key={label} className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                            <div className="flex flex-col items-center">
+                              <div className={`flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full ${
+                                ['search', 'commit', 'reveal', 'finalize'][i] === step
+                                  ? 'bg-blue-500 text-white'
+                                  : 'bg-zinc-200 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400'
+                              } text-xs sm:text-sm font-semibold`}>
+                                {i + 1}
+                              </div>
+                              <span className="text-xs mt-1 text-zinc-600 dark:text-zinc-400 hidden sm:block">{label}</span>
                             </div>
-                            {i < 3 && <div className="h-px w-8 bg-zinc-300 dark:bg-zinc-700" />}
+                            {i < 3 && <div className="h-px w-4 sm:w-8 bg-zinc-300 dark:bg-zinc-700" />}
                           </div>
                         ))}
                       </div>
@@ -502,7 +505,7 @@ function SearchContent() {
                             whileTap={{ scale: 0.98 }}
                             onClick={startAuction}
                             disabled={isPending || isConfirming || isConfirmed}
-                            className="w-full rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 text-lg font-semibold text-white hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 transition-all"
+                            className="w-full rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg font-semibold text-white hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 transition-all"
                           >
                             {isPending || isConfirming ? (
                               <span className="flex items-center justify-center gap-2">
@@ -640,7 +643,7 @@ function SearchContent() {
                             whileTap={{ scale: 0.98 }}
                             onClick={commitBid}
                             disabled={!bidAmount || isPending || isConfirming || isConfirmed}
-                            className="w-full rounded-xl bg-gradient-to-r from-purple-500 to-blue-600 px-6 py-4 text-lg font-semibold text-white hover:from-purple-600 hover:to-blue-700 disabled:opacity-50 transition-all"
+                            className="w-full rounded-xl bg-gradient-to-r from-purple-500 to-blue-600 px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg font-semibold text-white hover:from-purple-600 hover:to-blue-700 disabled:opacity-50 transition-all"
                           >
                             {isPending || isConfirming ? (
                               <span className="flex items-center justify-center gap-2">
@@ -786,7 +789,7 @@ function SearchContent() {
                             whileTap={{ scale: 0.98 }}
                             onClick={revealBid}
                             disabled={!revealBidAmount || !revealSecret || isPending || isConfirming || isConfirmed}
-                            className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-red-600 px-6 py-4 text-lg font-semibold text-white hover:from-orange-600 hover:to-red-700 disabled:opacity-50 transition-all"
+                            className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-red-600 px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg font-semibold text-white hover:from-orange-600 hover:to-red-700 disabled:opacity-50 transition-all"
                           >
                             {isPending || isConfirming ? (
                               <span className="flex items-center justify-center gap-2">
@@ -843,7 +846,7 @@ function SearchContent() {
                             whileTap={{ scale: 0.98 }}
                             onClick={finalizeAuction}
                             disabled={isPending || isConfirming || isConfirmed}
-                            className="w-full rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4 text-lg font-semibold text-white hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 transition-all"
+                            className="w-full rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg font-semibold text-white hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 transition-all"
                           >
                             {isPending || isConfirming ? (
                               <span className="flex items-center justify-center gap-2">
