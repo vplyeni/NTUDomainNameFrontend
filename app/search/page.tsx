@@ -429,70 +429,72 @@ function SearchContent() {
                   ) : null}
 
                   {/* Refund/Withdrawal Section */}
-                  {address && refundableAmount && Number(formatETH(refundableAmount)) > 0 ? 
-                  (
-                    <>
-                      {auctionInfo && auctionInfo[1] ? (
-                        // Auction is finalized - show withdraw button
-                        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/20">
-                          <div className="flex flex-col sm:flex-row items-start gap-3 sm:justify-between">
-                            <div className="flex-1">
-                              <h3 className="mb-1 text-sm font-semibold text-amber-900 dark:text-amber-400">
-                                Funds Available to Withdraw
-                              </h3>
-                              <p className="text-xl font-bold text-amber-900 dark:text-amber-300">
-                                {formatETH(refundableAmount)} ETH
-                              </p>
-                              <p className="mt-1 text-xs text-amber-800 dark:text-amber-500">
-                                {auctionInfo[4] === address ? 
-                                  'Excess funds from multiple bids (winning bid already deducted)' : 
-                                  'Full refund - you did not win this auction'
-                                }
-                              </p>
-                            </div>
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={withdrawFunds}
-                              disabled={isPending || isConfirming || isConfirmed}
-                              className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 transition-all flex-shrink-0"
-                            >
-                              {isPending || isConfirming ? (
-                                <span className="flex items-center gap-2">
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                  Withdrawing...
-                                </span>
-                              ) : (
-                                'Withdraw'
-                              )}
-                            </motion.button>
+                  {address && refundableAmount && (() => {
+                    // Calculate actual refundable amount
+                    // For finalized auctions, contract already deducted winning bid from refundableAmount
+                    // For non-finalized, we need to subtract it manually for display
+                    const actualRefundable = auctionInfo && !auctionInfo[1] && auctionInfo[4] === address && auctionInfo[5] > 0
+                      ? BigInt(refundableAmount.toString()) - BigInt(auctionInfo[5].toString())
+                      : BigInt(refundableAmount.toString());
+                    
+                    // Only show if actual refundable amount is > 0
+                    if (actualRefundable <= BigInt(0)) return null;
+                    
+                    return auctionInfo && auctionInfo[1] ? (
+                      // Auction is finalized - show withdraw button
+                      <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/20">
+                        <div className="flex flex-col sm:flex-row items-start gap-3 sm:justify-between">
+                          <div className="flex-1">
+                            <h3 className="mb-1 text-sm font-semibold text-amber-900 dark:text-amber-400">
+                              Funds Available to Withdraw
+                            </h3>
+                            <p className="text-xl font-bold text-amber-900 dark:text-amber-300">
+                              {formatETH(refundableAmount)} ETH
+                            </p>
+                            <p className="mt-1 text-xs text-amber-800 dark:text-amber-500">
+                              {auctionInfo[4] === address ? 
+                                'Excess funds from multiple bids (winning bid already deducted)' : 
+                                'Full refund - you did not win this auction'
+                              }
+                            </p>
+                          </div>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={withdrawFunds}
+                            disabled={isPending || isConfirming || isConfirmed}
+                            className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 transition-all flex-shrink-0"
+                          >
+                            {isPending || isConfirming ? (
+                              <span className="flex items-center gap-2">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Withdrawing...
+                              </span>
+                            ) : (
+                              'Withdraw'
+                            )}
+                          </motion.button>
+                        </div>
+                      </div>
+                    ) : (
+                      // Auction not finalized yet - show notice
+                      <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/20">
+                        <div className="flex items-start gap-3">
+                          <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <h3 className="mb-1 text-sm font-semibold text-blue-900 dark:text-blue-400">
+                              Funds Pending Withdrawal
+                            </h3>
+                            <p className="text-sm text-blue-800 dark:text-blue-500">
+                              You have <strong>{formatETH(actualRefundable)} ETH</strong> that will be available for withdrawal once the auction is finalized.
+                              {auctionInfo && auctionInfo[4] === address && ' (Winning bid will be deducted from your refund)'}
+                              {currentBids.length > 1 && ' (Multiple bids detected - excess funds will be refunded)'}
+                            </p>
                           </div>
                         </div>
-                      ) : (
-                        // Auction not finalized yet - show notice
-                        <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/20">
-                          <div className="flex items-start gap-3">
-                            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                            <div>
-                              <h3 className="mb-1 text-sm font-semibold text-blue-900 dark:text-blue-400">
-                                Funds Pending Withdrawal
-                              </h3>
-                              <p className="text-sm text-blue-800 dark:text-blue-500">
-                                You have <strong>{
-                                  // If user is the winner, show refundable - highestBid
-                                  auctionInfo && auctionInfo[4] === address && auctionInfo[5] > 0
-                                    ? formatETH(BigInt(refundableAmount.toString()) - BigInt(auctionInfo[5].toString()))
-                                    : formatETH(refundableAmount)
-                                } ETH</strong> that will be available for withdrawal once the auction is finalized.
-                                {auctionInfo && auctionInfo[4] === address && ' (Winning bid will be deducted from your refund)'}
-                                {currentBids.length > 1 && ' (Multiple bids detected - excess funds will be refunded)'}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  ) : null}
+                      </div>
+                    );
+                  })()}
 
                   {/* Auctionable Status Warning */}
                   {isAvailable && !isAuctionable && (

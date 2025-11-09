@@ -324,18 +324,22 @@ const AuctionCard = memo(function AuctionCard({
             </div>
           ) : null}
           
-          {address && refundableAmount && Number(formatETH(refundableAmount)) > 0 ? (
-            <div className="mt-2 flex items-center gap-2 text-xs text-blue-700 dark:text-blue-400">
-              <AlertCircle className="h-3 w-3" />
-              <span>Refund available: {
-                // If auction NOT finalized and user is winner, show refundable - highestBid
-                // (contract deducts winning bid only after finalization)
-                !finalized && address === highestBidder && highestBid > 0
-                  ? formatETH(BigInt(refundableAmount.toString()) - BigInt(highestBid.toString()))
-                  : formatETH(refundableAmount)
-              } ETH</span>
-            </div>
-          ) : null}
+          {address && refundableAmount && (() => {
+            // Calculate actual refundable amount
+            const actualRefundable = !finalized && address === highestBidder && highestBid > 0
+              ? BigInt(refundableAmount.toString()) - BigInt(highestBid.toString())
+              : BigInt(refundableAmount.toString());
+            
+            // Only show if actual refundable amount is > 0
+            if (actualRefundable <= BigInt(0)) return null;
+            
+            return (
+              <div className="mt-2 flex items-center gap-2 text-xs text-blue-700 dark:text-blue-400">
+                <AlertCircle className="h-3 w-3" />
+                <span>Refund available: {formatETH(actualRefundable)} ETH</span>
+              </div>
+            );
+          })()}
         </div>
         {/* Action Button */}
         <Link href={`/search?domain=${encodeURIComponent(domain)}&phase=${phase}`}>
